@@ -1,13 +1,14 @@
 # image, to build from (Node version 14 (LTS))
 FROM node:14
 
-# Args, used as such: $file
-ARG file
-ARG workdir
-ENV FILE_NAME=$file
+# Args, used as such: $fileName
+ARG fileName
+ARG argFilePath
+ARG workingDir
+ENV FILE_NAME=$fileName
 
 # Create app directory (inside image)
-WORKDIR "$workdir"
+WORKDIR "$workingDir"
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -20,9 +21,10 @@ WORKDIR "$workdir"
 # RUN npm ci --only=production
 
 # Bundle app source
-# This will probably need to be modified to only copy the module to benchmark
 COPY ./container_src .
+COPY "$fileName" .
+COPY "$argFilePath" ./args.json
 
-COPY "$file" .
-
-CMD node benchmark_controller
+# keeps container live while benchmark suite is executed. Containers are killed
+# off manually when the suite is finished.
+CMD sleep infinity

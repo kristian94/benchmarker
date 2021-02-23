@@ -8,63 +8,84 @@
  *  
  */
 // ----- imports and config -----
-const log = s => console.log('CONTROLLER |', s)
 
-const fs = require('fs').promises;
+const fs =  require('fs').promises;
 const { Worker } = require('worker_threads');
-const os = require('os');
-const { freemem } = os;
+const { freemem } = require('os');
+const { sequentialAsync } = require('./utils')
 
-const { FILE_NAME, INPUT, INTERVAL_MS } = Object.assign({
-    INPUT: 45,
-    INTERVAL_MS: 500
-}, process.env);
+const log = (...s) => console.log('CONTROLLER |', ...s)
+
+const { FILE_NAME } = process.env;
 
 // -----------------------------------------------
-const memorySnapshots = [];
 
-const addSnapshot = () => memorySnapshots.push(freemem());
+/**
+ *  ArgsFile {
+ *    exports: {
+ *      {exportName}: {
+ *        input: Any
+ *      }
+ *    }
+ *  }
+ */
+fs.readFile('args.json')
+    .then(JSON.parse)
+    .then(args => {
 
-addSnapshot();
+    return sequentialAsync(args.map(argEntry => () => new Promise((resolve, reject) => {
 
-log('starting worker...');
+        const { snapshotInterval } = argEntry
 
-const worker = new Worker('./benchmark_worker.js', {
-    workerData: {
-        fileName: FILE_NAME,
-        input: INPUT
-    }
-});
-
-let isOnline = false;
-
-worker.on('online', () => {
-    isOnline = true;
-    const tick = () => {
-        if(!isOnline) return;
+        const memorySnapshots = [];
+    
+        const addSnapshot = () => memorySnapshots.push(freemem());
+    
         addSnapshot();
-        setTimeout(tick, INTERVAL_MS)
-    }
 
-    tick();
+        log('starting worker...');
+
+        const worker = new Worker('./benchmark_worker.js', {
+            workerData: Object.assign(
+                { fileName: FILE_NAME }, 
+                argEntry)
+        });
+        
+        let isOnline = false;
+        
+        worker.on('online', () => {
+            isOnline = true;
+            const tick = () => {
+                if(!isOnline) return;
+                addSnapshot();
+                setTimeout(tick, snapshotInterval)
+            }
+        
+            tick();
+        })
+        
+        const formatNumber = (n, xs = []) => {
+            const n_ = typeof n === 'string' ? n : n.toString()
+            if(n_.length >= 4){
+                const cutoff = n_.length - 3;
+                return formatNumber(n_.substring(0, cutoff), [n_.substring(cutoff)].concat(xs))
+            }
+            return [n_, ...xs].join('.')
+        }
+        
+        worker.on('exit', () => {
+            isOnline = false;
+            addSnapshot();
+        
+            log('worker done')
+        
+            resolve(JSON.stringify({
+                ...argEntry,
+                fileName: FILE_NAME,
+                memorySnapshots
+            }));
+        
+        });
+    })))
+    .then(results => fs.writeFile('results.json', JSON.stringify(results)))
 })
-
-const formatNumber = (n, xs = []) => {
-    const n_ = typeof n === 'string' ? n : n.toString()
-    if(n_.length >= 4){
-        const cutoff = n_.length - 3;
-        return formatNumber(n_.substring(0, cutoff), [n_.substring(cutoff)].concat(xs))
-    }
-    return [n_, ...xs].join('.')
-}
-
-worker.on('exit', () => {
-    isOnline = false;
-    addSnapshot();
-
-    log('worker done, writing snapshots to file "results.json"')
-    console.log(memorySnapshots.map(x => `${formatNumber(Math.round(x / 1000))} KB`))
-
-    fs.writeFile('results.json', JSON.stringify(memorySnapshots))
-
-});

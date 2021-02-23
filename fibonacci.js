@@ -5,4 +5,6 @@ const fibonacci = n => {
     return fibonacci(n - 2) + fibonacci(n - 1)
 }
 
-module.exports = fibonacci
+module.exports = {
+    fibonacci
+}

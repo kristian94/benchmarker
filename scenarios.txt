@@ -1,0 +1,35 @@
+
+  # Create Suite
+
+  * User clicks "create suite"
+
+
+  ? "Upload file"
+
+  * user selects file from prompt
+
+  
+  ? "select exports to benchmark"
+
+  * user checks off items from list of exports (functions to benchmark)
+
+
+  ? for each export, "select input range"
+
+  * user enters input ranges or one/many sepcific input values for
+    each export
+
+
+  ! "suite created"
+
+  * user now sees their benchmark suite on a list, with options to run, edit or delete
+    a suite
+
+ 
+  # Run suite
+
+  * user is navigated to the suite view, which enters "run" mode. The view displays all
+    exports of the suite, as well as a terminal displaying stdout from the container.
+    At the bottom of the view is a results view, with an entry for each benchmarked
+    export. For each result entry, execution time and a graph of memory consumption over time
+    is displayed.

@@ -8,14 +8,21 @@
 
 const path = require('path');
 const { workerData } = require('worker_threads');
+const { getWasmExports } = require('./wasm');
+const { performance } = require('perf_hooks');
 
-const log = s => console.log('WORKER |', s)
-const { fileName, input } = workerData;
+const log = (...s) => console.log('WORKER |', ...s)
+const { fileName, input, exportName } = workerData;
 
-const fn = require(path.join(__dirname, fileName));
+(async () => {
+    const filePath = path.join(__dirname, fileName);
+    const _exports = await (/.*?wasm$/.test(fileName)
+            ? getWasmExports(filePath)
+            : require(filePath))
+    
+    const before = performance.now();
+    const val = _exports[exportName](input);
+    const after = performance.now();
 
-log(`running function exported by ${fileName} with input ${input}`)
-
-const val = fn(input);
-
-log(`finished, value: ${val}`);
+    log(`finished in ${Math.round(after - before)}ms, value: ${val}`);
+})();
