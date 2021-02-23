@@ -1,4 +1,4 @@
-console.log('fib imported')
+// small test module
 
 const fibonacci = n => {
     if(n <= 1) return n;
