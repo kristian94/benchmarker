@@ -1,1 +1,0 @@
-krisn tryller noget react/redux frem ??
