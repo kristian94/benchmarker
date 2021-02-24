@@ -8,6 +8,13 @@
 			"problemMatcher": [],
 			"label": "Start App",
 			"detail": "react-scripts start"
+		},
+		{
+			"type": "npm",
+			"script": "api",
+			"problemMatcher": [],
+			"label": "API",
+			"detail": "deno (...)/index.ts"
 		}
 	]
 }

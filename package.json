@@ -6,7 +6,8 @@
   "scripts": {
     "test": "ava",
     "sandbox": "npx tsc && node backend_build/sandbox/index.js",
-    "build": "npx tsc"
+    "build": "npx tsc",
+    "api": "deno run --allow-net backend/src/api/index.ts"
   },
   "keywords": [],
   "author": "",
