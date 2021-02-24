@@ -21,9 +21,10 @@ test('sequentialAsync - resolves to an array, where each entry contains the valu
         const thunkA = () => wait(50).then(() => 'a');
         const thunkB = () => wait(25).then(() => 'b');
 
-        s = await sequentialAsync([thunkA, thunkB]).then(xs => xs.join(''));
+        const s = await sequentialAsync([thunkA, thunkB]).then(xs => xs.join(''));
 
         t.is(s, 'ab')
         
     })
 
+export {}

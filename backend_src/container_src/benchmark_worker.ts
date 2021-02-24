@@ -11,7 +11,7 @@ const { workerData } = require('worker_threads');
 const { getWasmExports } = require('./wasm');
 const { performance } = require('perf_hooks');
 
-const log = (...s) => console.log('WORKER |', ...s)
+const log = (...s: String[]) => console.log('WORKER |', ...s)
 const { fileName, input, exportName } = workerData;
 
 (async () => {
@@ -26,3 +26,6 @@ const { fileName, input, exportName } = workerData;
 
     log(`finished in ${Math.round(after - before)}ms, value: ${val}`);
 })();
+
+// see bottom of benchmark_controller.js
+export {}

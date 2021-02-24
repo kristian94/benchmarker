@@ -5,24 +5,24 @@ const { convertPath } = require('./lib/utils');
 
 const { spawn } = require('child_process');
 
-// cmd :: Spawn -> Promise
-const cmd = (c, args) => new Promise((resolve, reject) => {
-    const commandString = [c, ...args].join(' ');
-    console.log('running:', commandString)
-    const proc = spawn(c, args);
-    proc.stdout.on('data', (data) => {
-        console.log(data.toString());
-    });
+const cmd: (c: String, args: String[]) => Promise<void> = 
+    (c, args) => new Promise((resolve, reject) => {
+        const commandString = [c, ...args].join(' ');
+        console.log('running:', commandString)
+        const proc = spawn(c, args);
+        proc.stdout.on('data', (data) => {
+            console.log(data.toString());
+        });
 
-    proc.stderr.on('data', (data) => {
-        console.error(data.toString());
-    });
+        proc.stderr.on('data', (data) => {
+            console.error(data.toString());
+        });
 
-    proc.on('close', (code) => {
-        code == 0 ? resolve() : reject()
-        console.log(`${commandString} exited with code ${code}`);
-    });
-})
+        proc.on('close', (code) => {
+            code == 0 ? resolve() : reject()
+            console.log(`${commandString} exited with code ${code}`);
+        });
+    })
 
 const dockerBuild = (dockerFilePath, imageName, buildArgs) => cmd('docker', [
     'build',
@@ -120,8 +120,7 @@ const benchmarkFile = (filePath, args) => {
             console.error(`Docker benchmark cleanup failed, following image and container may remain undeleted (delete these manually): ${imageName} ${containerName}`) // shitty error handling, i know
         });
 }
-    
 
-module.exports = {
+export {
     benchmarkFile
 }

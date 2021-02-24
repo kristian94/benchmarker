@@ -1,6 +1,6 @@
 const defaultSeparator = require('path').posix.sep;
 
-const formatNumber = (n, xs = []) => {
+const formatNumber = (n: Number|String, xs: any[] = []) => {
     const n_ = typeof n === 'string' ? n : n.toString()
     if(n_.length >= 4){
         const cutoff = n_.length - 3;
@@ -9,10 +9,10 @@ const formatNumber = (n, xs = []) => {
     return [n_, ...xs].join('.')
 }
 
-// convertPath :: String, String -> String      (convert paths between POSIX/Windows)
-const convertPath = (path, separator = defaultSeparator) => path.replace(/[/]|[\\]/g, separator);
+const convertPath = (path: String, separator = defaultSeparator) => 
+    path.replace(/[/]|[\\]/g, separator);
 
-module.exports = {
+export {
     formatNumber,
     convertPath
 }

@@ -25,3 +25,5 @@ test('parseArgsFileExports - 1st element of the array should contain exportName=
     t.is(parsed[0].exportName, 'fibonacci')
     t.is(parsed[0].input, 40)
 })
+
+export {}
