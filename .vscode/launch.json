@@ -9,14 +9,14 @@
             "request": "launch",
             "name": "Debug App Chrome",
             "url": "http://localhost:3000",
-            "webRoot": "${workspaceRoot}/frontend/my-app/"
+            "webRoot": "${workspaceRoot}/frontend/"
         },
         {
             "type": "firefox",
             "request": "launch",
             "name": "Debug App Firefox",
             "url": "http://localhost:3000",
-            "webRoot": "${workspaceRoot}/frontend/my-app/"
+            "webRoot": "${workspaceRoot}/frontend/"
         },
     ]
 }
