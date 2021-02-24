@@ -3,6 +3,7 @@ FROM node:14
 
 # Args, used as such: $fileName
 ARG fileName
+ARG filePath
 ARG argFilePath
 ARG workingDir
 ENV FILE_NAME=$fileName
@@ -22,7 +23,7 @@ WORKDIR "$workingDir"
 
 # Bundle app source
 COPY ./container_src .
-COPY "$fileName" .
+COPY "$filePath" .
 COPY "$argFilePath" ./args.json
 
 # keeps container live while benchmark suite is executed. Containers are killed

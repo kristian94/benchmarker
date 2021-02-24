@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "ava"
+    "test": "ava",
+    "sandbox": "node sandbox/index.js"
   },
   "keywords": [],
   "author": "",

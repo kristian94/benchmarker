@@ -1,6 +1,7 @@
 const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
+const path = require('path').posix;
+const { convertPath } = require('./lib/utils');
 
 const { spawn } = require('child_process');
 
@@ -73,7 +74,9 @@ const dockerRmImage = (imageName) => cmd('docker', [
 ])
 
 
-const benchmarkFile = (fileName, args) => {
+const benchmarkFile = (filePath, args) => {
+    const relativePath = path.relative(convertPath(__dirname), filePath);
+    const fileName = path.basename(filePath);
     const workingDir = '/usr/src/app';
     const imageName = `benchmarks/${uuidv4()}`
     const containerName = uuidv4();
@@ -84,7 +87,8 @@ const benchmarkFile = (fileName, args) => {
 
     return fs.writeFile(argFilePath, JSON.stringify(args))
         .then(() => dockerBuild(imageName, {
-            fileName,
+            fileName: fileName,
+            filePath: relativePath,
             argFilePath,
             workingDir,
         }))
