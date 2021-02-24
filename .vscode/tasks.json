@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "start",
+			"path": "frontend/my-app/",
+			"problemMatcher": [],
+			"label": "Start App",
+			"detail": "react-scripts start"
+		}
+	]
+}
