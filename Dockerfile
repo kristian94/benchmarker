@@ -22,7 +22,7 @@ WORKDIR "$workingDir"
 # RUN npm ci --only=production
 
 # Bundle app source
-COPY ./container_src .
+COPY ./backend_build/container_src .
 COPY "$filePath" .
 COPY "$argFilePath" ./args.json
 

@@ -24,8 +24,10 @@ const cmd = (c, args) => new Promise((resolve, reject) => {
     });
 })
 
-const dockerBuild = (imageName, buildArgs) => cmd('docker', [
+const dockerBuild = (dockerFilePath, imageName, buildArgs) => cmd('docker', [
     'build',
+    '-f',
+    dockerFilePath,
     ...Object.keys(buildArgs).map(key => ['--build-arg', `${key}=${buildArgs[key]}`])
         .reduce((a, b) => a.concat(b), []),
     '-t',
@@ -75,21 +77,30 @@ const dockerRmImage = (imageName) => cmd('docker', [
 
 
 const benchmarkFile = (filePath, args) => {
-    const relativePath = path.relative(convertPath(__dirname), filePath);
+    // absolute path to Dockerfile
+    const dockerFilePath = path.join(convertPath(__dirname), '..', 'Dockerfile');
+
+    // file to benchmark
     const fileName = path.basename(filePath);
+    const relativeFilePath = path.relative(dockerFilePath, filePath);
+
+    // benchmark arguments json file
+    const argFileName = `args.${uuidv4()}.json`;
+    const argFilePath = path.join(convertPath(__dirname), '..', 'temp', argFileName);
+    const relativeArgFilePath = path.relative(dockerFilePath, argFilePath);
+
+    // docker arguments
     const workingDir = '/usr/src/app';
     const imageName = `benchmarks/${uuidv4()}`
     const containerName = uuidv4();
-    const argFileName = `args.${uuidv4()}.json`;
-    const argFilePath = `temp/${argFileName}`;
 
     console.log(`Creating image '${imageName}' and container '${containerName}'`);
 
     return fs.writeFile(argFilePath, JSON.stringify(args))
-        .then(() => dockerBuild(imageName, {
+        .then(() => dockerBuild(dockerFilePath, imageName, {
             fileName: fileName,
-            filePath: relativePath,
-            argFilePath,
+            filePath: relativeFilePath,
+            argFilePath: relativeArgFilePath,
             workingDir,
         }))
         .then(() => dockerCreate(imageName, containerName))
@@ -99,11 +110,13 @@ const benchmarkFile = (filePath, args) => {
         .then(() => dockerCp(containerName, workingDir))
         .then(() => dockerKill(containerName))
         .catch(err => {
+            console.error(err);
             console.log('Docker benchmark failed, check logs...') // shitty error handling, i know
         })
         .then(() => dockerRmContainer(containerName))
         .then(() => dockerRmImage(imageName))
         .catch(err => {
+            console.error(err);
             console.error(`Docker benchmark cleanup failed, following image and container may remain undeleted (delete these manually): ${imageName} ${containerName}`) // shitty error handling, i know
         });
 }
