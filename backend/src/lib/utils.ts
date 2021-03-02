@@ -1,6 +1,7 @@
+const fs = require('fs').promises;
 const defaultSeparator = require('path').posix.sep;
 
-const formatNumber = (n: Number|String, xs: any[] = []) => {
+export const formatNumber = (n: Number|String, xs: any[] = []) => {
     const n_ = typeof n === 'string' ? n : n.toString()
     if(n_.length >= 4){
         const cutoff = n_.length - 3;
@@ -9,10 +10,10 @@ const formatNumber = (n: Number|String, xs: any[] = []) => {
     return [n_, ...xs].join('.')
 }
 
-const convertPath = (path: String, separator = defaultSeparator) => 
+export const convertPath = (path: String, separator = defaultSeparator) => 
     path.replace(/[/]|[\\]/g, separator);
 
-export {
-    formatNumber,
-    convertPath
-}
+
+export const fileExists: (path: String) => Promise<Boolean> = (path: String) => fs.access(path)
+    .then(_ => true)
+    .catch(_ => false);

@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
 const path = require('path').posix;
-const { convertPath } = require('./lib/utils');
+const { convertPath, fileExists } = require('./lib/utils');
 
 const { spawn } = require('child_process');
 
@@ -77,6 +77,9 @@ const dockerRmImage = (imageName) => cmd('docker', [
 
 
 const benchmarkFile = (filePath, args) => {
+    // path to temp
+    const pathToTemp = path.join(convertPath(__dirname), '..', 'temp');
+
     // absolute path to Dockerfile
     const dockerFilePath = path.join(convertPath(__dirname), '..', 'Dockerfile');
 
@@ -96,7 +99,10 @@ const benchmarkFile = (filePath, args) => {
 
     console.log(`Creating image '${imageName}' and container '${containerName}'`);
 
-    return fs.writeFile(argFilePath, JSON.stringify(args))
+    return fileExists(pathToTemp).then(tempExists => tempExists 
+            ? Promise.resolve()
+            : fs.mkdir(pathToTemp))
+        .then(() => fs.writeFile(argFilePath, JSON.stringify(args)))
         .then(() => dockerBuild(dockerFilePath, imageName, {
             fileName: fileName,
             filePath: relativeFilePath,
