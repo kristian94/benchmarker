@@ -89,7 +89,7 @@ const benchmarkFile = (filePath, args) => {
 
     // benchmark arguments json file
     const argFileName = `args.${uuidv4()}.json`;
-    const argFilePath = path.join(convertPath(__dirname), '..', 'temp', argFileName);
+    const argFilePath = path.join(pathToTemp, argFileName);
     const relativeArgFilePath = path.relative(dockerFilePath, argFilePath);
 
     // docker arguments
