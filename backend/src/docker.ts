@@ -48,9 +48,13 @@ const dockerStart = (containerName) => cmd('docker', [
     containerName
 ])
 
-const dockerExecNode = (workingDir, containerName) => cmd('docker', [
+const dockerExec = (containerName, args: String[]) => cmd('docker', [
     'exec',
     containerName,
+    ...args
+])
+
+const dockerExecNode = (workingDir, containerName) => dockerExec(containerName, [
     'node',
     `${workingDir}/benchmark_controller.js`
 ])
@@ -141,7 +145,10 @@ export const benchmarkFile = (filePath, args) => {
         .then(() => dockerCreate(imageName, containerName))
         .then(() => fs.unlink(argFilePath))
         .then(() => dockerStart(containerName))
-        .then(() => dockerExecNode(workingDir, containerName))
+        .then(() => dockerExec(containerName, [
+            'node',
+            `${workingDir}/benchmark_controller.js`
+        ]))
         .then(() => dockerCp(containerName, `/${workingDir}/results.json`, `./temp/results.${containerName}.json`))
         .then(() => dockerKill(containerName))
         .catch(err => {
