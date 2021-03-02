@@ -1,26 +1,19 @@
-import { Application, Router } from "https://deno.land/x/oak@v6.5.0/mod.ts";
-import router from "./routes.ts"
+import express from "express"
+import bodyParser from "body-parser"
+import morgan from "morgan"
+
+import router from "./routes"
 
 const port = 8000
-const app = new Application()
+const app = express()
 
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
 
-// Logger
-app.use(async (ctx, next) => {
-    await next();
-    const rt = ctx.response.headers.get("X-Response-Time");
-    console.log(`${ctx.request.method} ${ctx.request.url} - ${rt} - ${ctx.response.status}`);
-});
-
-// Timing
-app.use(async (ctx, next) => {
-    const start = Date.now();
-    await next();
-    const ms = Date.now() - start;
-    ctx.response.headers.set("X-Response-Time", `${ms}ms`);
-});
-
-app.use(router.routes())
+// parse application/json
+app.use(bodyParser.json())
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
+app.use(router)
 
 console.log(`App started on port ${port}`)
-await app.listen({ port });
+app.listen({ port });

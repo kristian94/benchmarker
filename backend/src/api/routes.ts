@@ -1,23 +1,36 @@
-import { Router } from "https://deno.land/x/oak@v6.5.0/mod.ts";
+import express from "express";
+import multer from "multer"
 
-const router = new Router()
+const upload = multer({dest: 'uploads/'})
+const router = express.Router()
 
-router.get("/", (ctx) => {
-    ctx.response.body = "Hello"
+router.get("/", (_, res) => {
+    res.send("Hello")
 })
 
-router.get("/ping", (ctx) => {
-    ctx.response.body = "pong"
+router.get("/ping", (_, res) => {
+    res.send("pong")
 })
 
-router.post("/wasm-upload", ( async ctx => {
-    // WIP
-    const body = ctx.request.body({ type: 'form-data'})
-    console.log(body)
-    const formData = await body.value.read({ maxSize: 5000000 });
-    console.log(formData)
+router.post("/wasm-upload", upload.single("wasmfile"), (req, res) => {
+    if (!req['file']) {
+        res.sendStatus(400)
+    }
+    console.log(req['file']) // file meta
+    /*{
+        fieldname: 'wasmfile',
+        originalname: 'module.wasm',
+        encoding: '7bit',
+        mimetype: 'application/wasm',
+        destination: 'uploads/',
+        filename: 'dd780d44a785b39f70ac3fb103aab17a',
+        path: 'uploads\\dd780d44a785b39f70ac3fb103aab17a',
+        size: 98
+    }*/
     
-    ctx.response.body = "den er bra"
-}))
+    console.log(req.body) // Rest of fields
+
+    res.send("den er bra")
+})
 
 export default router
