@@ -6,6 +6,7 @@
   "scripts": {
     "test": "ava",
     "sandbox": "npx tsc && node build/sandbox/index.js",
+    "sandbox_compile": "npx tsc && node build/sandbox/index.compile.js",
     "api": "npx tsc && node build/api/index.js",
     "build": "npx tsc"
   },
