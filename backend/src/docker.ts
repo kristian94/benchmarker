@@ -90,22 +90,90 @@ const ensureTemp = fileExists(pathToTemp).then(tempExists => tempExists
 
 
 export const compileFile = async (filePath) => {
+    // todo, parameterize
+    // const compileCommand = ['wasm-pack']
 
-    const dockerFilePath = path.join(convertPath(__dirname), '..', 'Compile.Dockerfile')
+    const dockerFilePath = path.join(convertPath(__dirname), '..', 'dockerfiles', 'Compile.Dockerfile');
+    const dockerFileDir = path.dirname(dockerFilePath);
     const imageName = `compile/${uuidv4()}`
-    const containerName = uuidv4()
+    const containerName = uuidv4();
+    const rustPackageName = "wasm_01";
+    const workingDir = '/usr/src';
+    const compilerSrcDir = path.join(convertPath(__dirname), '..', 'rust_compile_src');
+    const containerTempDir = path.join(pathToTemp, containerName);
 
-    await ensureTemp
-    await dockerBuild(dockerFilePath, imageName, {
-        workingDir: '/usr/src/app'
-    })
+    const relative = _path => path.relative(dockerFileDir, _path)
+    const fileName = path.basename(filePath);
 
-    await dockerCreate(imageName, containerName)
-    await dockerStart(containerName)
+    try
+    {
+        await ensureTemp
+        await dockerBuild(dockerFilePath, imageName, {
+            workingDir,
+            filePath: relative(filePath),
+            compilerSrcDir: relative(compilerSrcDir),
+            rustPackageName
+        })
 
-    await dockerKill(containerName)
-    await dockerRmContainer(containerName)
-    await dockerRmImage(imageName)
+        await dockerCreate(imageName, containerName)
+        await dockerStart(containerName)
+
+        await dockerExec(containerName, [
+            'cargo',
+            'new',
+            '--lib',
+            rustPackageName
+        ])
+
+        await dockerExec(containerName, [
+            'rm',
+            `${rustPackageName}/Cargo.toml`
+        ]);
+
+        await dockerExec(containerName, [
+            'mv',
+            `temp/Cargo.toml`,
+            `${rustPackageName}`
+        ]);
+
+        await dockerExec(containerName, [
+            'rm',
+            `${rustPackageName}/src/lib.rs`
+        ]);
+
+        await dockerExec(containerName, [
+            'mv',
+            `temp/lib.rs`,
+            `${rustPackageName}/src`
+        ]);
+
+        // await dockerExec(containerName, [
+        //     'wasm-pack',
+        //     'build',
+        //     '--target',
+        //     'nodejs'
+        // ]);
+
+        await dockerExec(containerName, [
+            'bash',
+            '-c',
+            `cd wasm_01 && wasm-pack build --target nodejs`
+        ]);
+
+        await fs.mkdir(containerTempDir);
+
+        await dockerCp(containerName, 
+            `/${workingDir}/${rustPackageName}/pkg`,
+            `./${relative(containerTempDir)}`
+        )
+
+        await dockerKill(containerName)
+        await dockerRmContainer(containerName)
+        await dockerRmImage(imageName)
+    }catch(err){
+        console.log(`An error was thrown while compiling ${filePath}`);
+        console.error(err);
+    }
 }
 
 
