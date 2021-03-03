@@ -2,9 +2,9 @@
 
 Benchy - a tool for dynamically creating and executing benchmark suites in containerized environments, tailored to specific performance needs.
 
-- Utilizes Docker to provide isolated, automated and configurable runtime environments for benchmarking
+- Utilizes Docker to provide isolated, automated and configurable runtime environments for compiling and benchmarking
 - Produces key metrics to provide useful insight into the benchmarked code
-- Fine-tuning of the benchmark runtime's available resources (ram, cpu) can be used to simulate different environments
+- Fine-tuning of the benchmark runtimes available resources (ram, cpu) can be used to simulate different environments
 
 ## setup
 
@@ -12,27 +12,21 @@ Have the following installed:
 - Docker (v20.10.2, or higher)
 - Node (v12.18.2, or higher)   
 
-## ongoing concerns
-
-- parallelization (in general, timely execution of benchmark suites)
-- code structure (keep it clean, keep it simple)
-- usability (automate everything, transparency in errors)
-
 ## todo
-- frontend!!
+- frontend
 - interface: set up simple server, allowing for file uploads
 - parse results file
 - metrics: include execution time
 - inputs, add support for: 
   - number of repetitions
   - memory, cpu (see 'docker create': https://docs.docker.com/engine/reference/commandline/create/)
-- find better way to measure memory use (freemem() fluctuates a bit)
+- find better way to measure memory usage (freemem() fluctuates a bit)
 
 ## research todo
-- find metrics of interest
+- resarch benchmarks in general, find metrics of interest
 - find support for the use of Docker (probably ties together with using docker to simulate specific environments, possibly with restricted resources)
-- check if tools like this exist, and if so, how we can improve on existing solutions
-- anything that justifies coding this heap of garbage really
+- check if tools like this exist
+- memory 
 
 ## Down the line...
 
@@ -40,10 +34,7 @@ Have the following installed:
 - how do we decide on snapshot intervals? (provide as arg probably)
 - handle dependencies (bundling could be a solution, WebAssembly possible answer as well)?
 - scaling? How do we test entire applications in this manner?
-- GUI?
 - auto infer input? (tricky, probably not feasible)
-
-- SOLVED how do we benchmark webassembly code?
 
 
 # Archive/log
