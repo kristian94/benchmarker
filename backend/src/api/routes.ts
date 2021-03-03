@@ -1,7 +1,16 @@
 import express from "express";
 import multer from "multer"
+import { v4 as uuidv4 } from "uuid"
 
-const upload = multer({dest: 'uploads/'})
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${uuidv4()}.wasm`)
+    }
+})
+const upload = multer({ storage })
 const router = express.Router()
 
 router.get("/", (_, res) => {
