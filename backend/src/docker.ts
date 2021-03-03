@@ -90,9 +90,6 @@ const ensureTemp = fileExists(pathToTemp).then(tempExists => tempExists
 
 
 export const compileFile = async (filePath) => {
-    // todo, parameterize
-    // const compileCommand = ['wasm-pack']
-
     const dockerFilePath = path.join(convertPath(__dirname), '..', 'dockerfiles', 'Compile.Dockerfile');
     const dockerFileDir = path.dirname(dockerFilePath);
     const imageName = `compile/${uuidv4()}`
@@ -103,7 +100,6 @@ export const compileFile = async (filePath) => {
     const containerTempDir = path.join(pathToTemp, containerName);
 
     const relative = _path => path.relative(dockerFileDir, _path)
-    const fileName = path.basename(filePath);
 
     try
     {
