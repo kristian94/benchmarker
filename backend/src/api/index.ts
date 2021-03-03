@@ -1,4 +1,5 @@
 import express from "express"
+import cors from "cors"
 import bodyParser from "body-parser"
 import morgan from "morgan"
 
@@ -6,6 +7,8 @@ import router from "./routes"
 
 const port = 8000
 const app = express()
+
+app.use(cors())
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
