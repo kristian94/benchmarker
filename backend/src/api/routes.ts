@@ -13,10 +13,10 @@ router.get("/ping", (_, res) => {
 })
 
 router.post("/wasm-upload", upload.single("wasmfile"), (req, res) => {
-    if (!req['file']) {
-        res.sendStatus(400)
+    if (!req.file) {
+        return res.sendStatus(400)
     }
-    console.log(req['file']) // file meta
+    console.log(req.file) // file meta
     /*{
         fieldname: 'wasmfile',
         originalname: 'module.wasm',
