@@ -4,17 +4,21 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "ava",
-    "sandbox": "npx tsc && node build/sandbox/index.js",
-    "sandbox_compile": "npx tsc && node build/sandbox/index.compile.js",
-    "api": "npx tsc && node build/api/index.js",
-    "build": "npx tsc"
+    "test": "npm run build && ava",
+    "sandbox": "npm run build && node build/sandbox/index.js",
+    "sandbox_compile": "npm run build && node build/sandbox/index.compile.js",
+    "api": "npm run build && node build/api/index.js",
+    "build": "npx tsc && npm run copy_files",
+    "copy_rustfiles": "copyfiles -u 1 src/**/*.toml build/",
+    "copy_dockerfiles": "copyfiles -u 1 src/**/Dockerfile build/",
+    "copy_files": "npm run copy_rustfiles && npm run copy_dockerfiles"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "chalk": "^4.1.0",
     "express": "^4.17.1",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
@@ -25,6 +29,7 @@
     "@types/express": "^4.17.11",
     "@types/node": "^14.14.31",
     "ava": "^3.15.0",
+    "copyfiles": "^2.4.1",
     "typescript": "^4.2.2"
   }
 }

@@ -7,3 +7,5 @@ test('convertPath - windows to posix', t => {
     
     t.is(convertPath(winPath, '/'), posixPath);
 })
+
+export {}
