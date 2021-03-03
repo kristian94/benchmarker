@@ -147,13 +147,6 @@ export const compileFile = async (filePath) => {
             `${rustPackageName}/src`
         ]);
 
-        // await dockerExec(containerName, [
-        //     'wasm-pack',
-        //     'build',
-        //     '--target',
-        //     'nodejs'
-        // ]);
-
         await dockerExec(containerName, [
             'bash',
             '-c',
