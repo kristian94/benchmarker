@@ -2,8 +2,9 @@ const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
 const path = require('path').posix;
 const { convertPath, fileExists } = require('./lib/utils');
-
 const { spawn } = require('child_process');
+
+const pathToTemp = path.join(convertPath(__dirname), '..', 'temp');
 
 const cmd: (c: String, args: String[]) => Promise<void> = 
     (c, args) => new Promise((resolve, reject) => {
@@ -47,17 +48,21 @@ const dockerStart = (containerName) => cmd('docker', [
     containerName
 ])
 
-const dockerExecNode = (workingDir, containerName) => cmd('docker', [
+const dockerExec = (containerName, args: String[]) => cmd('docker', [
     'exec',
     containerName,
+    ...args
+])
+
+const dockerExecNode = (workingDir, containerName) => dockerExec(containerName, [
     'node',
     `${workingDir}/benchmark_controller.js`
 ])
 
-const dockerCp = (containerName, workingDir) => cmd('docker', [
+const dockerCp = (containerName, sourcePath, targetPath) => cmd('docker', [
     'cp',
-    `${containerName}:/${workingDir}/results.json`,
-    `./temp/results.${containerName}.json`
+    `${containerName}:${sourcePath}`,
+    targetPath
 ])
 
 const dockerKill = (containerName) => cmd('docker', [
@@ -75,13 +80,111 @@ const dockerRmImage = (imageName) => cmd('docker', [
     imageName
 ])
 
+const ensureTemp = fileExists(pathToTemp).then(tempExists => tempExists 
+    ? Promise.resolve()
+    : fs.mkdir(pathToTemp));
 
-const benchmarkFile = (filePath, args) => {
-    // path to temp
-    const pathToTemp = path.join(convertPath(__dirname), '..', 'temp');
+
+
+
+
+
+export const compileFile = async (filePath) => {
+    // todo, parameterize
+    // const compileCommand = ['wasm-pack']
+
+    const dockerFilePath = path.join(convertPath(__dirname), '..', 'dockerfiles', 'Compile.Dockerfile');
+    const dockerFileDir = path.dirname(dockerFilePath);
+    const imageName = `compile/${uuidv4()}`
+    const containerName = uuidv4();
+    const rustPackageName = "wasm_01";
+    const workingDir = '/usr/src';
+    const compilerSrcDir = path.join(convertPath(__dirname), '..', 'rust_compile_src');
+    const containerTempDir = path.join(pathToTemp, containerName);
+
+    const relative = _path => path.relative(dockerFileDir, _path)
+    const fileName = path.basename(filePath);
+
+    try
+    {
+        await ensureTemp
+        await dockerBuild(dockerFilePath, imageName, {
+            workingDir,
+            filePath: relative(filePath),
+            compilerSrcDir: relative(compilerSrcDir),
+            rustPackageName
+        })
+
+        await dockerCreate(imageName, containerName)
+        await dockerStart(containerName)
+
+        await dockerExec(containerName, [
+            'cargo',
+            'new',
+            '--lib',
+            rustPackageName
+        ])
+
+        await dockerExec(containerName, [
+            'rm',
+            `${rustPackageName}/Cargo.toml`
+        ]);
+
+        await dockerExec(containerName, [
+            'mv',
+            `temp/Cargo.toml`,
+            `${rustPackageName}`
+        ]);
+
+        await dockerExec(containerName, [
+            'rm',
+            `${rustPackageName}/src/lib.rs`
+        ]);
+
+        await dockerExec(containerName, [
+            'mv',
+            `temp/lib.rs`,
+            `${rustPackageName}/src`
+        ]);
+
+        // await dockerExec(containerName, [
+        //     'wasm-pack',
+        //     'build',
+        //     '--target',
+        //     'nodejs'
+        // ]);
+
+        await dockerExec(containerName, [
+            'bash',
+            '-c',
+            `cd wasm_01 && wasm-pack build --target nodejs`
+        ]);
+
+        await fs.mkdir(containerTempDir);
+
+        await dockerCp(containerName, 
+            `/${workingDir}/${rustPackageName}/pkg`,
+            `./${relative(containerTempDir)}`
+        )
+
+        await dockerKill(containerName)
+        await dockerRmContainer(containerName)
+        await dockerRmImage(imageName)
+    }catch(err){
+        console.log(`An error was thrown while compiling ${filePath}`);
+        console.error(err);
+    }
+}
+
+
+
+
+
+
+export const benchmarkFile = (filePath, args) => {
 
     // absolute path to Dockerfile
-    const dockerFilePath = path.join(convertPath(__dirname), '..', 'Dockerfile');
+    const dockerFilePath = path.join(convertPath(__dirname), '..', 'Benchmark.Dockerfile');
 
     // file to benchmark
     const fileName = path.basename(filePath);
@@ -99,9 +202,7 @@ const benchmarkFile = (filePath, args) => {
 
     console.log(`Creating image '${imageName}' and container '${containerName}'`);
 
-    return fileExists(pathToTemp).then(tempExists => tempExists 
-            ? Promise.resolve()
-            : fs.mkdir(pathToTemp))
+    return ensureTemp
         .then(() => fs.writeFile(argFilePath, JSON.stringify(args)))
         .then(() => dockerBuild(dockerFilePath, imageName, {
             fileName: fileName,
@@ -112,8 +213,11 @@ const benchmarkFile = (filePath, args) => {
         .then(() => dockerCreate(imageName, containerName))
         .then(() => fs.unlink(argFilePath))
         .then(() => dockerStart(containerName))
-        .then(() => dockerExecNode(workingDir, containerName))
-        .then(() => dockerCp(containerName, workingDir))
+        .then(() => dockerExec(containerName, [
+            'node',
+            `${workingDir}/benchmark_controller.js`
+        ]))
+        .then(() => dockerCp(containerName, `/${workingDir}/results.json`, `./temp/results.${containerName}.json`))
         .then(() => dockerKill(containerName))
         .catch(err => {
             console.error(err);
@@ -125,8 +229,4 @@ const benchmarkFile = (filePath, args) => {
             console.error(err);
             console.error(`Docker benchmark cleanup failed, following image and container may remain undeleted (delete these manually): ${imageName} ${containerName}`) // shitty error handling, i know
         });
-}
-
-export {
-    benchmarkFile
 }
