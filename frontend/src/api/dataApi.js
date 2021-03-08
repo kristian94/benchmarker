@@ -1,6 +1,6 @@
 
-import { addPosts, addUser } from '../slices/dataSlice'
-import { fetchData } from './apiHelpers'
+import { addPosts, addUser } from '../reducers/dataSlice'
+import { fetchData, fetchFile } from './apiHelpers'
 
 // api routes
 export const getUser = id => {
@@ -22,5 +22,16 @@ export const getPosts = () => {
         } catch (e) {
             console.log(e);
         }        
+    }
+}
+
+export const sendFile = data => {
+    return async dispatch => {
+        try {
+            const res = await fetchFile('http://localhost:8000/wasm-upload', "POST", data)
+            console.log(res);
+        } catch (e) {
+            console.log(`Noget med galt: ${e}`);
+        }
     }
 }
