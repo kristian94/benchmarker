@@ -6,6 +6,7 @@ ARG fileName
 ARG filePath
 ARG argFilePath
 ARG workingDir
+ARG containerSrcDir
 ENV FILE_NAME=$fileName
 
 # Create app directory (inside image)
@@ -22,7 +23,7 @@ WORKDIR "$workingDir"
 # RUN npm ci --only=production
 
 # Bundle app source
-COPY ./build/container_src .
+COPY $containerSrcDir .
 COPY "$filePath" .
 COPY "$argFilePath" ./args.json
 

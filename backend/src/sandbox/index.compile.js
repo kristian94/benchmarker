@@ -1,4 +1,3 @@
-// const { compileFile } = require('../docker');
 const { run } = require('../containers/rust-wasm-compile/runner');
 
 const path = require('path').posix;

@@ -22,6 +22,7 @@ const {
 
 export const run = async (filePath, args) => {
 
+    // get path relative to the cwd, passed to the docker context
     const relative = _path => path.relative(backendDir, _path);
 
     // file to benchmark
@@ -32,6 +33,10 @@ export const run = async (filePath, args) => {
     const argFileName = `args.${uuidv4()}.json`;
     const argFilePath = path.join(pathToTemp, argFileName);
     // const relativeArgFilePath = path.relative(dockerFilePath, argFilePath);
+
+    // container src dir
+    const containerSrcDir = path.join(convertPath(__dirname), 'container_src');
+
 
     // docker arguments
     const workingDir = '/usr/src/app';
@@ -46,6 +51,7 @@ export const run = async (filePath, args) => {
             fileName: fileName,
             filePath: relative(filePath),
             argFilePath: relative(argFilePath),
+            containerSrcDir: relative(containerSrcDir),
             workingDir,
         });
 
