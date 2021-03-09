@@ -20,13 +20,13 @@ const {
 } = getContext(backendDir);
 
 
-export const run = async (filePath, args) => {
+export const run = async (dir: String, fileName: String, args: Object) => {
 
     // get path relative to the cwd, passed to the docker context
     const relative = _path => path.relative(backendDir, _path);
 
     // file to benchmark
-    const fileName = path.basename(filePath);
+    // const fileName = path.basename(dir);
     // const relativeFilePath = path.relative(dockerFilePath, filePath);
 
     // benchmark arguments json file
@@ -49,7 +49,7 @@ export const run = async (filePath, args) => {
         await fs.writeFile(argFilePath, JSON.stringify(args));
         await dockerBuild(dockerFilePath, imageName, {
             fileName: fileName,
-            filePath: relative(filePath),
+            filePath: relative(dir),
             argFilePath: relative(argFilePath),
             containerSrcDir: relative(containerSrcDir),
             workingDir,
@@ -67,7 +67,7 @@ export const run = async (filePath, args) => {
         await dockerCp(containerName, `/${workingDir}/results.json`, `./temp/results.${containerName}.json`);
 
     }catch(err){
-        console.log(`An error was thrown while benchmarking ${filePath}`);
+        console.log(`An error was thrown while benchmarking ${dir}`);
         console.error(err);
     }
 
