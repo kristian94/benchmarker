@@ -1,8 +1,11 @@
-const { benchmarkFile } = require('../docker');
-const path = require('path').posix;
-const { convertPath } = require('../lib/utils')
+const { run } = require('../containers/node-wasm-benchmark/runner');
 
-benchmarkFile(path.join(convertPath(__dirname), 'fibonacci.js'), [
+const path = require('path').posix;
+const { convertPath } = require('../lib/utils');
+
+
+
+run(path.join(convertPath(__dirname), 'fibonacci.js'), [
     {
         exportName: 'fibonacci',
         input: 43,
