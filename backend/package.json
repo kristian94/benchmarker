@@ -9,9 +9,7 @@
     "sandbox_compile": "npm run build && node build/sandbox/index.compile.js",
     "api": "npm run build && node build/api/index.js",
     "build": "npx tsc && npm run copy_files",
-    "copy_rustfiles": "copyfiles -u 1 src/**/*.toml build/",
-    "copy_dockerfiles": "copyfiles -u 1 src/**/Dockerfile build/",
-    "copy_files": "npm run copy_rustfiles && npm run copy_dockerfiles"
+    "copy_files": "copyfiles -u 1 src/**/* -e src/**/*.ts -e src/**/*.js build/"
   },
   "keywords": [],
   "author": "",
