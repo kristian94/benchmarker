@@ -9,7 +9,8 @@
     "sandbox_compile": "npm run build && node build/sandbox/index.compile.js",
     "api": "npm run build && node build/api/index.js",
     "build": "npx tsc && npm run copy_files",
-    "copy_files": "copyfiles -u 1 src/**/* -e src/**/*.ts -e src/**/*.js build/"
+    "copy_files": "copyfiles -u 1 src/**/* -e src/**/*.ts -e src/**/*.js build/",
+    "sandbox_pipe": "npm run build && node build/sandbox/index.pipe.js"
   },
   "keywords": [],
   "author": "",

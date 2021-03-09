@@ -20,7 +20,12 @@ const {
 } = getContext(backendDir);
 
 
-export const run = async (filePath) => {
+export interface CompileResult {
+    dir: String,
+    fileName: String
+}
+
+export const run: (filePath: String) => Promise<CompileResult>  = async (filePath) => {
     
     const imageName = `compile/${uuidv4()}`
     const containerName = uuidv4();
@@ -101,4 +106,9 @@ export const run = async (filePath) => {
     await dockerKill(containerName).catch(() => console.info('Non-critical: kill failed'))
     await dockerRmContainer(containerName).catch(() => console.info('Non-critical: rmContainer failed'))
     await dockerRmImage(imageName).catch(() => console.info('Non-critical: rmImage failed'))
+
+    return {
+        dir: containerTempDir,
+        fileName: `${rustPackageName}.js`
+    }
 }
