@@ -12,9 +12,10 @@
 		{
 			"type": "npm",
 			"script": "api",
+			"path": "backend/",
 			"problemMatcher": [],
 			"label": "API",
-			"detail": "deno (...)/index.ts"
+			"detail": "node build/api/index.ts"
 		}
 	]
 }
