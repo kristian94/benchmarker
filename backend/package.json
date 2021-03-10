@@ -10,7 +10,8 @@
     "api": "npm run build && node build/api/index.js",
     "build": "npx tsc && npm run copy_files",
     "copy_files": "copyfiles -u 1 src/**/* -e src/**/*.ts -e src/**/*.js build/",
-    "sandbox_pipe": "npm run build && node build/sandbox/index.pipe.js"
+    "sandbox_pipe": "npm run build && node build/sandbox/index.pipe.js",
+    "clear_temp": "rimraf temp/*"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +32,7 @@
     "@types/node": "^14.14.31",
     "ava": "^3.15.0",
     "copyfiles": "^2.4.1",
+    "rimraf": "^3.0.2",
     "typescript": "^4.2.2"
   }
 }
