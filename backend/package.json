@@ -11,6 +11,7 @@
     "build": "npx tsc && npm run copy_files",
     "copy_files": "copyfiles -u 1 src/**/* -e src/**/*.ts -e src/**/*.js build/",
     "sandbox_pipe": "npm run build && node build/sandbox/index.pipe.js",
+    "sandbox_emscripten": "npm run build && node build/sandbox/index.emscripten.js",
     "clear_temp": "rimraf temp/*"
   },
   "keywords": [],
