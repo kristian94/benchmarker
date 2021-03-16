@@ -23,8 +23,8 @@ WORKDIR "$workingDir"
 # # RUN npm ci --only=production
 
 # # Bundle app source
-COPY "$compilerSrcDir" "./temp"
-COPY "$filePath" "./temp/lib.rs"
+COPY $compilerSrcDir ./temp
+COPY $filePath "./temp/lib.rs"
 # COPY "$argFilePath" ./args.json
 
 RUN apt-get -yqq update;		\

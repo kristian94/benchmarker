@@ -14,7 +14,7 @@ const { Worker } = require('worker_threads');
 const { freemem } = require('os');
 const { sequentialAsync } = require('./utils')
 
-const log = (...s: String[]) => console.log('CONTROLLER |', ...s)
+const log = (...s) => console.log('CONTROLLER |', ...s)
 
 const { FILE_NAME } = process.env;
 
@@ -29,11 +29,11 @@ const { FILE_NAME } = process.env;
  *    }
  *  }
  */
-fs.readFile('args.json')
-    .then(JSON.parse)
-    .then(args => {
 
-    return sequentialAsync(args.map(argEntry => () => new Promise((resolve, reject) => {
+;(async () => {
+    const args = await fs.readFile('args.json').then(JSON.parse);
+
+    const results = await sequentialAsync(args.map(argEntry => () => new Promise((resolve, reject) => {
 
         const { snapshotInterval } = argEntry
 
@@ -87,9 +87,10 @@ fs.readFile('args.json')
         
         });
     })))
-    .then(results => fs.writeFile('results.json', JSON.stringify(results)))
-})
 
+    await fs.writeFile('results.json', JSON.stringify(results));
+
+})();
 
 // had to add this to prevent "redeclaration of block-scoped variable" error 
 // (see https://stackoverflow.com/questions/40900791/cannot-redeclare-block-scoped-variable-in-unrelated-files)

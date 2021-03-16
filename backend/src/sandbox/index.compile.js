@@ -1,7 +1,8 @@
-const { compileFile } = require('../docker');
+const { run } = require('../containers/rust-wasm-compile/runner');
+
 const path = require('path').posix;
 const { convertPath } = require('../lib/utils')
 
-compileFile(path.join(convertPath(__dirname), '..', '..', 'test_files', 'module.rs')).then(res => {
+run(path.join(convertPath(__dirname), '..', '..', 'test_files', 'module.rs')).then(res => {
     console.log(res);
 });

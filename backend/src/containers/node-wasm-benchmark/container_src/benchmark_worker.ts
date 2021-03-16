@@ -11,17 +11,20 @@ const { workerData } = require('worker_threads');
 const { getWasmExports } = require('./wasm');
 const { performance } = require('perf_hooks');
 
-const log = (...s: String[]) => console.log('WORKER |', ...s)
+const log = (...s) => console.log('WORKER |', ...s)
 const { fileName, input, exportName } = workerData;
 
+
 (async () => {
-    const filePath = path.join(__dirname, fileName);
+    
+    const filePath = path.join(__dirname, 'pkg', fileName);
+    
     const _exports = await (/.*?wasm$/.test(fileName)
             ? getWasmExports(filePath)
             : require(filePath))
     
     const before = performance.now();
-    const val = _exports[exportName](input);
+    const val = _exports.__wasm[exportName](input);
     const after = performance.now();
 
     log(`finished in ${Math.round(after - before)}ms, value: ${val}`);
