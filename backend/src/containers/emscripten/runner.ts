@@ -48,16 +48,12 @@ export const run = async () => {
         await dockerCreate(imageName, containerName)
         await dockerStart(containerName)
 
-        // await dockerExec(containerName, [
-
-        // ]);
-
         await fs.mkdir(containerTempDir);
 
-        // await dockerCp(containerName, 
-        //     `/${workingDir}/..?`,
-        //     `${path.relative(backendDir, containerTempDir)}`
-        // )
+        await dockerCp(containerName, 
+            `/${workingDir}/FFmpeg/wasm/dist`,
+            `${path.relative(backendDir, containerTempDir)}`
+        )
 
     }catch(err){
         console.log(`An error was thrown while compiling`);
