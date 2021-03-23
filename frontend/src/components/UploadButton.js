@@ -14,8 +14,15 @@ function UploadButton() {
     }
     
     return (
-        <div>
+        <div className="mb-32">
+            <p className="mb-5">Upload WebAssembly module for benchmarking</p>
+            <label
+                for="wasm-upload-button"
+                className="font-bold text-white p-3 rounded-2xl bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50">
+                Upload
+            </label>
             <input
+                style={{display:"none"}}
                 id="wasm-upload-button"
                 type="file"
                 accept=".wasm"
