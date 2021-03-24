@@ -1,5 +1,6 @@
 const fs = require('fs').promises;
 const defaultSeparator = require('path').posix.sep;
+const { v4: uuidv4 } = require('uuid');
 
 export const formatNumber = (n: Number|String, xs: any[] = []) => {
     const n_ = typeof n === 'string' ? n : n.toString()

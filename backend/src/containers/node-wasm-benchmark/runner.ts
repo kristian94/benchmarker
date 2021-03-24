@@ -3,6 +3,7 @@ const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
 const { pathToTemp, ensureTemp, backendDir, dockerFileRelative } = require('../fs_util');
 const { convertPath } = require('../../lib/utils');
+import { BenchmarkArgs } from './types'
 
 const dockerFilePath = path.join(convertPath(__dirname), 'Dockerfile');
 
@@ -20,14 +21,14 @@ const {
 } = getContext(backendDir);
 
 
-export const run = async (dir: String, fileName: String, args: Object) => {
+export const run = async (args: BenchmarkArgs) => {
 
     // get path relative to the cwd, passed to the docker context
     const relative = _path => path.relative(backendDir, _path);
 
     // benchmark arguments json file
-    const argFileName = `args.${uuidv4()}.json`;
-    const argFilePath = path.join(pathToTemp, argFileName);
+    const argFileName = `args.json`;
+    const argFilePath = path.join(args.tempDir, argFileName);
 
     // container src dir
     const containerSrcDir = path.join(convertPath(__dirname), 'container_src');
@@ -42,9 +43,7 @@ export const run = async (dir: String, fileName: String, args: Object) => {
         await ensureTemp
         await fs.writeFile(argFilePath, JSON.stringify(args));
         await dockerBuild(dockerFilePath, imageName, {
-            fileName: fileName,
-            filePath: relative(dir),
-            argFilePath: relative(argFilePath),
+            tempDir: relative(args.tempDir),
             containerSrcDir: relative(containerSrcDir),
             workingDir,
         });
@@ -55,13 +54,19 @@ export const run = async (dir: String, fileName: String, args: Object) => {
         await dockerStart(containerName);
         await dockerExec(containerName, [
             'node',
-            `${workingDir}/benchmark_controller.js`
+            `${workingDir}/controller.js`
         ]);
 
-        await dockerCp(containerName, `/${workingDir}/results.json`, `./temp/results.${containerName}.json`);
+        await dockerCp(containerName, `/${workingDir}/results.json`, relative(path.join(args.tempDir, 'results.json')));
+
+        const results = await fs.readFile(path.join(args.tempDir, 'results.json')).then(JSON.parse);
+
+        console.log(results)
+
+        return results;
 
     }catch(err){
-        console.log(`An error was thrown while benchmarking ${dir}`);
+        console.log(`An error was thrown while benchmarking ${args.targetFile}`);
         console.error(err);
     }
 
