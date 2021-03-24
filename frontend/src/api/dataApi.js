@@ -1,5 +1,6 @@
 
 import { addPosts, addUser } from '../reducers/dataSlice'
+import { setWasmMeta } from '../reducers/wasmMetaSlice'
 import { fetchData, fetchFile } from './apiHelpers'
 
 // api routes
@@ -21,7 +22,7 @@ export const getPosts = () => {
             dispatch(addPosts(res))
         } catch (e) {
             console.log(e);
-        }        
+        }
     }
 }
 
@@ -30,6 +31,7 @@ export const sendFile = data => {
         try {
             const res = await fetchFile('http://localhost:8000/wasm-upload', "POST", data)
             console.log(res);
+            dispatch(setWasmMeta(res))
         } catch (e) {
             console.log(`Noget med galt: ${e}`);
         }

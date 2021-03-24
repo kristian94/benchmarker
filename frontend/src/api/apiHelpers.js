@@ -28,7 +28,7 @@ export async function fetchFile(url, method, data) {
     const res = await req
 
     if (res.ok) {
-        return res.text()
+        return res.json()
     } else {
         throw new Error(`Error fetching data: ${res.status}`)
     }
