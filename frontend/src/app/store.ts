@@ -1,9 +1,11 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import dataReducer from '../reducers/dataSlice'
+import wasmMetaReducer from '../reducers/wasmMetaSlice'
 
 export const store = configureStore({
   reducer: {
-    data: dataReducer
+    data: dataReducer,
+    wasmMeta: wasmMetaReducer
   },
 });
 
