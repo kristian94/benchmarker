@@ -7,7 +7,7 @@
 			"path": "frontend/",
 			"problemMatcher": [],
 			"label": "Start App",
-			"detail": "react-scripts start"
+			"detail": "craco start"
 		},
 		{
 			"type": "npm",

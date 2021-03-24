@@ -20,7 +20,7 @@ function Chart() {
     }
 
     return (
-        <div style={{width: 1000, height: 800}}>
+        <div className="dark:bg-gray-300 rounded-lg shadow-lg">
             <Line data={data} options={options} />
         </div>
     )
