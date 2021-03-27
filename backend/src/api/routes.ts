@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid"
 import { backendDir, createTempDir } from '../lib/fs_util'
 import fs from 'fs'
 
-import { getWasmExports } from '../containers/node-wasm-benchmark/container_src/wasm-importer'
+import { getWasmExports, LoaderEnum } from '../containers/node-wasm-benchmark/container_src/wasm-importer'
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -36,6 +36,8 @@ router.post("/wasm-upload", upload.single("wasmfile"), async (req, res) => {
     }
     console.log(req.file) // file meta
 
+    const {loader} = req.body;
+
     if (req.file.mimetype !== "application/wasm") {
         return res.status(400).send("non wasm file")
     }
@@ -44,10 +46,16 @@ router.post("/wasm-upload", upload.single("wasmfile"), async (req, res) => {
     if (!fs.existsSync(pathToWasm)) {
         return res.status(500)
     }
-    const wasmExports = await getWasmExports(pathToWasm)
+    const result = await getWasmExports(pathToWasm, {
+        importMemory: true,
+        loader: loader
+    })
+
+    const {exports, memory} = result;
+
     const wasmFuncs: string[] = []
-    for (const e in wasmExports) {
-        if (typeof wasmExports[e] == "function") {
+    for (const e in exports) {
+        if (typeof exports[e] == "function") {
             wasmFuncs.push(e)
         }
     }
