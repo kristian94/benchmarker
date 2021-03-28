@@ -1,7 +1,7 @@
 const path = require('path').posix;
 const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
-const { pathToTemp, ensureTemp, backendDir, dockerFileRelative } = require('../fs_util');
+const { pathToTemp, ensureTemp, backendDir, dockerFileRelative } = require('../../lib/fs_util');
 const { convertPath } = require('../../lib/utils');
 import { BenchmarkArgs } from './types'
 
@@ -70,7 +70,7 @@ export const run = async (args: BenchmarkArgs) => {
         console.error(err);
     }
 
-    await dockerKill(containerName).catch(() => console.info('Non-critical: kill failed'))
-    await dockerRmContainer(containerName).catch(() => console.info('Non-critical: rmContainer failed'))
-    await dockerRmImage(imageName).catch(() => console.info('Non-critical: rmImage failed'))
+    // await dockerKill(containerName).catch(() => console.info('Non-critical: kill failed'))
+    // await dockerRmContainer(containerName).catch(() => console.info('Non-critical: rmContainer failed'))
+    // await dockerRmImage(imageName).catch(() => console.info('Non-critical: rmImage failed'))
 }

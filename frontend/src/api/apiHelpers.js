@@ -2,7 +2,7 @@ export async function fetchData(url, method, data) {
     const req = fetch(url, {
         method: method,
         headers: {
-            'Content-Type': 'application-json'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(data),
     })

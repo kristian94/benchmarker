@@ -14,16 +14,25 @@ import { WorkerResult, WorkerData } from './types'
 
 const log = (...s) => console.log('WORKER |', ...s)
 
-const { wasmPath, exportName, input, dryRun } = workerData as WorkerData;
+const { wasmPath, exportName, inputs, dryRun, instantiationOptions } = workerData as WorkerData;
 
 const sleep = duration => new Promise(res => setTimeout(res, duration));
 
 (async () => {
 
-    const _exports = await (/.*?wasm$/.test(wasmPath)
-            ? getWasmExports(wasmPath)
+    log('instantiationOptions:', instantiationOptions)
+
+    const wModule = await (/.*?wasm$/.test(wasmPath)
+            ? getWasmExports(wasmPath, instantiationOptions)
             : require(wasmPath))
     
+    log('wModule:', wModule)
+
+    // wasm-pack namespaces exports under "__wasm" 
+    const exports = wModule.__wasm ?? wModule.exports;
+
+    log('exports:', exports)
+
     const before = performance.now();
 
     let returnValue;
@@ -31,7 +40,7 @@ const sleep = duration => new Promise(res => setTimeout(res, duration));
     if(dryRun > 0){
         await sleep(dryRun).then(_ => null)
     }else{
-        returnValue = _exports.__wasm[exportName](input);;
+        returnValue = exports[exportName](...inputs);;
     }
 
     const after = performance.now();

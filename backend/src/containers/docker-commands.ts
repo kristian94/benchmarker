@@ -1,5 +1,5 @@
 const { spawn } = require('child_process');
-const { backendDir } = require('./fs_util')
+const { backendDir } = require('../lib/fs_util')
 const chalk = require('chalk');
 
 const cmd: (c: String, cwd: String, args: String[]) => Promise<void> = 

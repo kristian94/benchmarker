@@ -4,6 +4,8 @@
  *  
  */
 
+import { BenchmarkArgs } from "../types";
+
 const fs =  require('fs').promises;
 
 const log = (...s) => console.log('CONTROLLER |', ...s)
@@ -23,20 +25,18 @@ const cmdAsync = (...c: String[]) => new Promise((resolve) => {
 })
 
 ;(async () => {
-    const args = await fs.readFile('args.json').then(JSON.parse);
+    const args: BenchmarkArgs = await fs.readFile('args.json').then(JSON.parse);
+    
     const wasmPath = './src/' + args.targetFile;
 
     // :: [] String[]
     const masterArgs = args.exportArgs.map((x, i) => 
         [wasmPath, `results-${zeroPad(3)(i)}.json`, i, 0]);
 
-    
+    const exportResultsList = await sequentialAsync(masterArgs.map(mArgs => async () => {
+        await cmdAsync('node', '--experimental-wasm-threads', '--expose-gc', 'master', ...mArgs.map(x => x.toString()));
 
-
-    const exportResultsList = await sequentialAsync(masterArgs.map(args => async () => {
-        await cmdAsync('node', '--expose-gc', 'master', ...args);
-
-        const [, resultsFile, i] = args;
+        const [, resultsFile, i] = mArgs;
 
         const exportResults = await fs.readFile(resultsFile).then(JSON.parse);
 

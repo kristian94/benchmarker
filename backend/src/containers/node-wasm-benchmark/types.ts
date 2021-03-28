@@ -1,11 +1,15 @@
+import { ExportInput } from "./container_src/types";
+import { WasmInstantiationOptions } from "./container_src/wasm-importer";
+
 export interface BenchmarkExportArgs {
-    exportName: String,
-    input: any,
-    interval: Number
+    exportName: string,
+    inputs: ExportInput,
+    interval: number,
 }
 
 export interface BenchmarkArgs {
-    targetFile: String,
-    tempDir: String,
-    exportArgs: BenchmarkExportArgs[]
+    targetFile: string,
+    tempDir: string,
+    exportArgs: BenchmarkExportArgs[],
+    instantiationOptions: WasmInstantiationOptions
 }

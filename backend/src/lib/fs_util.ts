@@ -12,7 +12,9 @@ export const dockerFileRelative = dockerFilePath => _path => path.relative(path.
 
 export const backendDir = path.join(convertPath(__dirname), '..', '..');
 
+export const getTempDirPath = name => path.join(pathToTemp, name);
+
 export const createTempDir = (name) => {
-    const _path = path.join(pathToTemp, name);
+    const _path = getTempDirPath(name);
     return fs.mkdir(_path).then(() => _path)
 }

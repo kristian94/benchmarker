@@ -1,10 +1,14 @@
+import { WasmInstantiationOptions } from "./wasm-importer";
+
+export type ExportInput = any[]
+
 export interface WorkerResult {
     executionDuration: Number,
     returnValue: any
 }
 
 export interface EnrichedWorkerResult extends WorkerResult {
-    input: any,
+    inputs: ExportInput,
     exportName: string,
     snapshots: NodeJS.MemoryUsage[]
 }
@@ -12,6 +16,7 @@ export interface EnrichedWorkerResult extends WorkerResult {
 export interface WorkerData {
     wasmPath: string,
     exportName: string,
-    input: string,
-    dryRun: Number
+    inputs: ExportInput,
+    dryRun: Number,
+    instantiationOptions: WasmInstantiationOptions
 }

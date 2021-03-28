@@ -13,6 +13,8 @@ WORKDIR "$workingDir"
 COPY $tempDir .
 COPY $containerSrcDir .
 
+run npm i @assemblyscript/loader
+
 # keeps container live while benchmark suite is executed. Containers are killed
 # off manually when the suite is finished.
 CMD sleep infinity

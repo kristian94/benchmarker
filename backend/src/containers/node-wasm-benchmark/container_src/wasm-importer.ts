@@ -1,7 +1,7 @@
 
 
 const fs = require('fs').promises;
-const AssemblyScriptLoader = require("@assemblyscript/loader");
+import * as AssemblyScriptLoader from "@assemblyscript/loader";
 
 export enum LoaderEnum {
     Default = "default",

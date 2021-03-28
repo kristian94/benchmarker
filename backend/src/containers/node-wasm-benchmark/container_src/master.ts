@@ -15,6 +15,7 @@
 
 const fs = require('fs').promises;
 const { Worker } = require('worker_threads');
+import { BenchmarkArgs } from '../types';
 import { WorkerResult, EnrichedWorkerResult, WorkerData } from './types'
 
 
@@ -33,9 +34,10 @@ const addSnapshot = () => snapshots.push(process.memoryUsage())
 
 ;(async () => {
 
-    const args = await fs.readFile('args.json').then(JSON.parse);
+    const args: BenchmarkArgs = await fs.readFile('args.json').then(JSON.parse);
+    const instantiationOptions = args.instantiationOptions;
     const exportArgs = args.exportArgs[index];
-    const {input, exportName, interval } = exportArgs;
+    const {inputs, exportName, interval } = exportArgs;
 
     log(`measuring ${exportName}@${interval}`)
     log('spawning worker...')
@@ -53,8 +55,9 @@ const addSnapshot = () => snapshots.push(process.memoryUsage())
         const workerData: WorkerData = {
             wasmPath,
             exportName,
-            input,
-            dryRun
+            inputs,
+            dryRun,
+            instantiationOptions
         }
         
         const worker = new Worker('./worker.js', {
@@ -75,11 +78,11 @@ const addSnapshot = () => snapshots.push(process.memoryUsage())
     addSnapshot();
 
     log('Worker finished, elapsed/result:', workerResults.executionDuration, workerResults.returnValue);
-
+    
     const json: EnrichedWorkerResult = {
         ...workerResults,
         snapshots,
-        input,
+        inputs,
         exportName
     };
 
