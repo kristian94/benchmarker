@@ -1,11 +1,13 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import dataReducer from '../reducers/dataSlice'
 import wasmMetaReducer from '../reducers/wasmMetaSlice'
+import suiteResultsReducer from '../reducers/suiteResultSlice'
 
 export const store = configureStore({
   reducer: {
     data: dataReducer,
-    wasmMeta: wasmMetaReducer
+    wasmMeta: wasmMetaReducer,
+    suiteResults: suiteResultsReducer
   },
 });
 

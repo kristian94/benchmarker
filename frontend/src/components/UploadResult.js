@@ -25,8 +25,6 @@ function UploadResult() {
             })
         }
 
-        console.log(body)
-
         dispatch(runSuite(body))
     }
     
@@ -53,9 +51,9 @@ function UploadResult() {
 
                 {
                     wasmFuncs.map((f, i) =>
-                        <div data-export-name={f.name}>
-                            <p className="font-mono text-lg mb-1" key={i}>{f.name}</p>
-                            {Array(f.length).fill(<input className="input-arg text-black mb-1" name={f.name} />)}
+                        <div key={i} data-export-name={f.name}>
+                            <p className="font-mono text-lg mb-1">{f.name}</p>
+                            {Array(f.length).fill(0).map((_, i) => <input key={i} className="input-arg text-black mb-1" name={f.name} />)}
                         </div>) 
                 }
             </div>

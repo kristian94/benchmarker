@@ -2,12 +2,14 @@ import React from 'react'
 import { Line } from 'react-chartjs-2'
 
 // Docs: https://www.chartjs.org/docs/latest/getting-started/usage.html
-function Chart() {
-    const data = {
-        labels: ["boisen", "er", "rippe", "med", "specialet", "gg"],
+function Chart(params) {
+    const {data, labels, name} = params
+
+    const chartData = {
+        labels: labels,
         datasets: [{
-            label: "Bra chart",
-            data: [12, 19, 3, 5, 2, 3]
+            label: name + ': Memory usage',
+            data: data
         }]
     }
 
@@ -21,7 +23,7 @@ function Chart() {
 
     return (
         <div className="dark:bg-gray-300 rounded-lg shadow-lg">
-            <Line data={data} options={options} />
+            <Line data={chartData} options={options} />
         </div>
     )
 }

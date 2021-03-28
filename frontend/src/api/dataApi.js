@@ -31,7 +31,6 @@ export const sendFile = data => {
     return async dispatch => {
         try {
             const res = await fetchFile('http://localhost:8000/wasm-upload', "POST", data)
-            console.log(res);
             dispatch(setWasmMeta(res))
         } catch (e) {
             console.log(`Noget med galt: ${e}`);
@@ -39,17 +38,12 @@ export const sendFile = data => {
     }
 }
 
-export const runSuite = body => {
-    return async dispatch => {
-        try {
-            const res = await fetchData(
-                'http://localhost:8000/run-suite', 
-                "POST", 
-                body)
-            console.log(res);
-            dispatch(setSuiteResults(res))
-        } catch (e) {
-            console.log(`Noget med galt: ${e}`);
-        }
-    }
-}
+export const runSuite = body => dispatch => 
+    fetchData(
+        'http://localhost:8000/run-suite', 
+        "POST", 
+        body)
+    .then(res => dispatch(setSuiteResults(res)))
+    .catch(console.error)
+    
+

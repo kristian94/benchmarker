@@ -3,6 +3,8 @@ import Chart from './components/Chart';
 // import Posts from './components/Posts';
 import UploadButton from './components/UploadButton';
 import UploadResult from './components/UploadResult';
+import SuiteResults from './components/SuiteResults';
+
 import './css/App.css';
 
 
@@ -15,8 +17,7 @@ function App() {
           <UploadButton />
           <UploadResult />
         </div>
-        <Chart />
-        {/* <Posts />  */}
+        <SuiteResults></SuiteResults>
       </div>
     </div>
   );
