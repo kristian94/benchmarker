@@ -70,7 +70,7 @@ export const run = async (args: BenchmarkArgs) => {
         console.error(err);
     }
 
-    // await dockerKill(containerName).catch(() => console.info('Non-critical: kill failed'))
-    // await dockerRmContainer(containerName).catch(() => console.info('Non-critical: rmContainer failed'))
-    // await dockerRmImage(imageName).catch(() => console.info('Non-critical: rmImage failed'))
+    await dockerKill(containerName).catch(() => console.info('Non-critical: kill failed'))
+    await dockerRmContainer(containerName).catch(() => console.info('Non-critical: rmContainer failed'))
+    await dockerRmImage(imageName).catch(() => console.info('Non-critical: rmImage failed'))
 }
