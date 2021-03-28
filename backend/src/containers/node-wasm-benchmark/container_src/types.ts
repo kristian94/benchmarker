@@ -2,6 +2,11 @@ import { WasmInstantiationOptions } from "./wasm-importer";
 
 export type ExportInput = any[]
 
+export interface Snapshot {
+    elapsed: number,
+    usage: NodeJS.MemoryUsage
+}
+
 export interface WorkerResult {
     executionDuration: Number,
     returnValue: any
@@ -10,7 +15,7 @@ export interface WorkerResult {
 export interface EnrichedWorkerResult extends WorkerResult {
     inputs: ExportInput,
     exportName: string,
-    snapshots: NodeJS.MemoryUsage[]
+    snapshots: Snapshot[]
 }
 
 export interface WorkerData {

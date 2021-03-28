@@ -16,7 +16,8 @@
 const fs = require('fs').promises;
 const { Worker } = require('worker_threads');
 import { BenchmarkArgs } from '../types';
-import { WorkerResult, EnrichedWorkerResult, WorkerData } from './types'
+import { WorkerResult, EnrichedWorkerResult, WorkerData, Snapshot } from './types'
+const { performance } = require('perf_hooks');
 
 
 const [ , , wasmPath, outPath, indexString, dryRunString] = process.argv;
@@ -28,9 +29,21 @@ const log = (...s) => console.log('MASTER |', ...s);
 
 log('args:', wasmPath, outPath, indexString, dryRunString);
 
-const snapshots: NodeJS.MemoryUsage[] = [];
+const snapshots: Snapshot[] = [];
 
-const addSnapshot = () => snapshots.push(process.memoryUsage())
+const addSnapshot = (() => {
+    let start = -1;
+
+    return () => {
+        const now = performance.now(); 
+        if(start === -1) start = now;
+        
+        snapshots.push({
+            usage: process.memoryUsage(),
+            elapsed: now - start
+        })
+    }
+})();
 
 ;(async () => {
 
