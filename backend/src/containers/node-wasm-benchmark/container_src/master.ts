@@ -17,6 +17,7 @@ const fs = require('fs').promises;
 const { Worker } = require('worker_threads');
 import { BenchmarkArgs } from '../types';
 import { WorkerResult, EnrichedWorkerResult, WorkerData, Snapshot } from './types'
+import { freemem} from 'os';
 const { performance } = require('perf_hooks');
 
 
@@ -40,7 +41,8 @@ const addSnapshot = (() => {
         
         snapshots.push({
             usage: process.memoryUsage(),
-            elapsed: now - start
+            elapsed: now - start,
+            osFreeMemory: freemem()
         })
     }
 })();

@@ -14,6 +14,9 @@
  *  
  */
 
+import { BenchmarkArgs } from "../types";
+import { Snapshot } from "./types";
+
 const fs =  require('fs').promises;
 
 const log = (...s) => console.log('CONTROLLER |', ...s)
@@ -35,28 +38,23 @@ const cmdAsync = (...c: String[]) => new Promise((resolve) => {
 })
 
 ;(async () => {
-    const args = await fs.readFile('args.json').then(JSON.parse);
+    const args: BenchmarkArgs = await fs.readFile('args.json').then(JSON.parse);
     const wasmPath = './src/' + args.targetFile;
 
     // :: [] String[]
     const masterArgs = args.exportArgs.map((x, i) => 
         [wasmPath, `results-${zeroPad(3)(i)}.json`, i, 0]);
 
-    
-
-
-    const resultFilePaths = await sequentialAsync(masterArgs.map(args => async () => {
-        await cmdAsync('node', '--expose-gc', 'master', ...args);
+    const exportResultsList = await sequentialAsync(masterArgs.map(args => async () => {
+        await cmdAsync('node', '--experimental-wasm-threads', '--expose-gc', 'master', ...args.map(x => x.toString()));
 
         const [, resultsFile, i] = args;
 
         const results = await fs.readFile(resultsFile).then(JSON.parse);
 
-        // log('results:', results);
-
         const dryArgs = [wasmPath, `results-${zeroPad(3)(i)}.dry.json`, i, Math.round(results.executionDuration)]
 
-        await cmdAsync('node', '--expose-gc', 'master', ...dryArgs);
+        await cmdAsync('node', '--experimental-wasm-threads', '--expose-gc', 'master', ...dryArgs.map(x => x.toString()));
 
         const [, dryResultsFile] = dryArgs;
 
@@ -105,36 +103,42 @@ const cmdAsync = (...c: String[]) => new Promise((resolve) => {
             drySnapshots.splice(i, 1);
         }
 
-        const normalizedSnapshots: NodeJS.MemoryUsage[] = [];
+        const normalizedSnapshots: Snapshot[] = [];
 
         for(let i = 0; i < snapshots.length; i++){
             const actual = snapshots[i];
             const dry = drySnapshots[i];
 
             const diffOr0 =  (prop) => Math.max(actual[prop] - dry[prop], 0)
+            const usageDiffOr0 =  (prop) => Math.max(actual.usage[prop] - dry.usage[prop], 0)
 
             normalizedSnapshots[i] = {
-                rss: diffOr0('rss'),
-                heapTotal: diffOr0('heapTotal'),
-                heapUsed: diffOr0('heapUsed'),
-                external: diffOr0('external'),
-                arrayBuffers: diffOr0('arrayBuffers')
+                elapsed: actual.elapsed,
+                usage: {
+                    rss: usageDiffOr0('rss'),
+                    heapTotal: usageDiffOr0('heapTotal'),
+                    heapUsed: usageDiffOr0('heapUsed'),
+                    external: usageDiffOr0('external'),
+                    arrayBuffers: usageDiffOr0('arrayBuffers')
+                },
+                osFreeMemory: diffOr0('osFreeMemory')
             }
         }
 
-        const toMB = x => (x.rss / 1000000).toFixed(1) + 'MB';
+        const toMB = x => (x.rss / 1024 / 1024).toFixed(1) + 'MB';
 
-        log('rss      :', snapshots.map(toMB));
-        log('rss (dry):', drySnapshots.map(toMB));
+        // log('rss      :', snapshots.map(toMB));
+        // log('rss (dry):', drySnapshots.map(toMB));
 
-        log('normalizedSnapshots:', normalizedSnapshots.map(toMB))
-        
-        const enrichedResults = Object.assign({}, results, {
-            normalizedSnapshots
-        })
+        // log('normalizedSnapshots:', normalizedSnapshots.map(toMB))
 
-        
+        results.originalSnapshots = results.snapshots;
+        results.snapshots = normalizedSnapshots;
+
+        return results
     }))
+
+    await fs.writeFile('results.json', JSON.stringify(exportResultsList));
 
 })()
 

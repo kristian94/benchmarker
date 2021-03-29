@@ -4,7 +4,8 @@ export type ExportInput = any[]
 
 export interface Snapshot {
     elapsed: number,
-    usage: NodeJS.MemoryUsage
+    usage: NodeJS.MemoryUsage,
+    osFreeMemory: number
 }
 
 export interface WorkerResult {
