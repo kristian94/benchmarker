@@ -37,6 +37,28 @@ const cmdAsync = (...c: String[]) => new Promise((resolve) => {
     process.on('close', resolve)
 })
 
+const zip = (a, b) => new Array(a.length).fill(0).map((_, i) => [a[i], b[i]])
+
+// stretch :: Mutates. Fits the array to the input length by adding/removing elements to/form the middle of the array
+// will clone the midmost element, while the array is too short.
+const stretch = (array: any[], length: number) => {
+    
+    // too short
+    while(array.length < length){
+        const i = Math.floor(array.length / 2);
+        const x = array[i];
+        array.splice(i, 0, x);
+    }
+
+    // too long
+    while(array.length > length){
+        const i = Math.floor(array.length / 2);
+        array.splice(i, 1);
+    }
+
+    return array;
+}
+
 ;(async () => {
     const args: BenchmarkArgs = await fs.readFile('args.json').then(JSON.parse);
     const wasmPath = './src/' + args.targetFile;
@@ -84,53 +106,35 @@ const cmdAsync = (...c: String[]) => new Promise((resolve) => {
          *  
          */
 
-        // log('dryResults:', dryResults);
+        const toMB = x => (x / 1024 / 1024).toFixed(1) + 'MB';
 
-        const {snapshots} = results;
-        const {snapshots: drySnapshots} = dryResults;
+        stretch(dryResults.snapshots, results.snapshots.length)
+
+        const maxFree = dryResults.snapshots.concat(results.snapshots)
+            .map(x => x.osFreeMemory)
+            .reduce((a, b) => Math.max(a, b), 0);
 
 
-        // too short
-        while(dryResults.snapshots.length < results.snapshots.length){
-            const i = Math.floor(drySnapshots.length / 2);
-            const x = drySnapshots[i];
-            drySnapshots.splice(i, 0, x);
-        }
+        const normalizedSnapshots = zip(results.snapshots, dryResults.snapshots)
+            .map(x => {
+                const [act, dry] = x;
+                const diffOr0 =  (actObj, dryObj, prop) => Math.max(actObj[prop] - dryObj[prop], 0)
 
-        // too long
-        while(dryResults.snapshots.length > results.snapshots.length){
-            const i = Math.floor(drySnapshots.length / 2);
-            drySnapshots.splice(i, 1);
-        }
+                const actFreeMemInv = Math.max(0, maxFree - act.osFreeMemory);
+                const dryFreeMemInv = Math.max(0, maxFree - dry.osFreeMemory);
 
-        const normalizedSnapshots: Snapshot[] = [];
-
-        for(let i = 0; i < snapshots.length; i++){
-            const actual = snapshots[i];
-            const dry = drySnapshots[i];
-
-            const diffOr0 =  (prop) => Math.max(actual[prop] - dry[prop], 0)
-            const usageDiffOr0 =  (prop) => Math.max(actual.usage[prop] - dry.usage[prop], 0)
-
-            normalizedSnapshots[i] = {
-                elapsed: actual.elapsed,
-                usage: {
-                    rss: usageDiffOr0('rss'),
-                    heapTotal: usageDiffOr0('heapTotal'),
-                    heapUsed: usageDiffOr0('heapUsed'),
-                    external: usageDiffOr0('external'),
-                    arrayBuffers: usageDiffOr0('arrayBuffers')
-                },
-                osFreeMemory: diffOr0('osFreeMemory')
-            }
-        }
-
-        const toMB = x => (x.rss / 1024 / 1024).toFixed(1) + 'MB';
-
-        // log('rss      :', snapshots.map(toMB));
-        // log('rss (dry):', drySnapshots.map(toMB));
-
-        // log('normalizedSnapshots:', normalizedSnapshots.map(toMB))
+                return {
+                    elapsed: act.elapsed,
+                    usage: {
+                        rss: diffOr0(act.usage, dry.usage, 'rss'),
+                        heapTotal: diffOr0(act.usage, dry.usage, 'heapTotal'),
+                        heapUsed: diffOr0(act.usage, dry.usage, 'heapUsed'),
+                        external: diffOr0(act.usage, dry.usage, 'external'),
+                        arrayBuffers: diffOr0(act.usage, dry.usage, 'arrayBuffers')
+                    },
+                    osFreeMemory: Math.max(0, actFreeMemInv - dryFreeMemInv)
+                }
+            })
 
         results.originalSnapshots = results.snapshots;
         results.snapshots = normalizedSnapshots;
