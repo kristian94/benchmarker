@@ -8,13 +8,14 @@ function UploadResult() {
 
     const wasmFileId = useSelector(state => state.wasmMeta.wasmFileId)
     const wasmFuncs = useSelector(state => state.wasmMeta.funcs)
+    const targetFile = useSelector(state => state.wasmMeta.targetFile)
 
     const runTestSuite = () => {
         const exportContainers = Array.from(document.querySelectorAll('[data-export-name]'));
 
         const body = {
             id: wasmFileId,
-            targetFile: 'optimized.wasm',
+            targetFile,
             exports: exportContainers.map(el => {
                 const name = el.getAttribute('data-export-name');
                 const inputs = Array.from(document.querySelectorAll(`input[name=${name}]`));

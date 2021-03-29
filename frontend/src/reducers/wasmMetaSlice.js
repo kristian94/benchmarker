@@ -5,12 +5,15 @@ export const wasmMetaSlice = createSlice({
     initialState: {
         wasmFileId: null,
         funcs: [],
+        targetFile: ''
     },
     reducers: {
         setWasmMeta: (state, action) => {
             console.log("set state", action)
             state.wasmFileId = action.payload.uuid
             state.funcs = action.payload.funcs
+            state.targetFile = action.payload.targetFile
+
             console.log(state)
         }
     }

@@ -105,7 +105,8 @@ router.post("/wasm-upload", upload.single("wasmfile"), async (req, res) => {
 
     res.json({
         uuid: req['_id'],
-        funcs: wasmFuncs
+        funcs: wasmFuncs,
+        targetFile: req.file.originalname
     })
 })
 
