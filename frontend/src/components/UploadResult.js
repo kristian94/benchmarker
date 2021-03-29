@@ -54,7 +54,7 @@ function UploadResult() {
                     wasmFuncs.map((f, i) =>
                         <div key={i} data-export-name={f.name}>
                             <p className="font-mono text-lg mb-1">{f.name}</p>
-                            {Array(f.length).fill(0).map((_, i) => <input key={i} className="input-arg text-black mb-1" name={f.name} />)}
+                            {Array(f.length).fill(0).map((_, i) => <input key={i} className="input-arg text-black mb-1 py-1 px-2 text-sm rounded" name={f.name} />)}
                         </div>) 
                 }
             </div>
