@@ -1,6 +1,4 @@
 import React from 'react';
-import Chart from './components/Chart';
-// import Posts from './components/Posts';
 import UploadButton from './components/UploadButton';
 import UploadResult from './components/UploadResult';
 import SuiteResults from './components/SuiteResults';
@@ -17,7 +15,7 @@ function App() {
           <UploadButton />
           <UploadResult />
         </div>
-        <SuiteResults></SuiteResults>
+        <SuiteResults />
       </div>
     </div>
   );

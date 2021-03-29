@@ -2,8 +2,8 @@ import React from 'react'
 import { Line } from 'react-chartjs-2'
 
 // Docs: https://www.chartjs.org/docs/latest/getting-started/usage.html
-function Chart(params) {
-    const {data, labels, name} = params
+function Chart(props) {
+    const {data, labels, name} = props
 
     const chartData = {
         labels: labels,

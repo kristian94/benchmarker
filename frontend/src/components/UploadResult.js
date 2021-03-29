@@ -1,6 +1,7 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { runSuite } from '../api/dataApi'
+import Button from './Button'
 
 function UploadResult() {
     const dispatch = useDispatch()
@@ -57,7 +58,10 @@ function UploadResult() {
                         </div>) 
                 }
             </div>
-            <button onClick={runTestSuite}>Submizzle</button>
+            <div className="mt-2">
+                <Button text="Submizzle" onClick={runTestSuite} />
+            </div>
+            {/* <button onClick={runTestSuite}>Submizzle</button> */}
         </div>
     )
 }

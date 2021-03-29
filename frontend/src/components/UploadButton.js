@@ -25,14 +25,14 @@ function UploadButton() {
             <p className="mb-5">Upload WebAssembly module for benchmarking</p>
             <div className="mb-4">
                 <label className="block mb-1" htmlFor="loader-selection">WebAssembly Loader</label>
-                <select defaultValue="default" className="text-black" id="loader-selection">
+                <select defaultValue="default" className="text-black rounded py-1 px-2 text-sm" id="loader-selection">
                     <option value="default">Default</option>
                     <option value="assembly_script">AssemblyScript</option>
                 </select>
             </div>
             <div className="mb-4">
                 <label className="block mb-1" htmlFor="import-memory-selection">Import memory</label>
-                <select defaultValue="false" className="text-black" id="import-memory-selection">
+                <select defaultValue="false" className="text-black rounded py-1 px-2 text-sm" id="import-memory-selection">
                     <option value="false">false</option>
                     <option value="true">true</option>
                 </select>
@@ -40,7 +40,7 @@ function UploadButton() {
             <div className="pt-4 pt-4">
                 <label
                     htmlFor="wasm-upload-button"
-                    className="cursor-pointer font-bold text-white p-3 rounded-2xl bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50">
+                    className="cursor-pointer font-bold text-white py-2 px-3 rounded-2xl bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50">
                     Upload
                 </label>
                 <input
