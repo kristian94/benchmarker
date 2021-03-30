@@ -2,11 +2,12 @@ import React from 'react';
 import { HashRouter, Route } from 'react-router-dom'
 
 import './css/App.css';
-import Sidebar from './components/Sidebar';
+import Sidebar from './components/Sidebar/Sidebar';
 import Scenarioes from './views/Scenarios';
 import Tool from './views/Tool';
 
 function App() {
+  window.document.documentElement.classList.add("dark") // forced dark mode
   return (
     <div className="h-screen dark:bg-gray-800 dark:text-white">
       <HashRouter>
