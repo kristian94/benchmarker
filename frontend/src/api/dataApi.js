@@ -1,6 +1,5 @@
-
 import { addPosts, addUser } from '../reducers/dataSlice'
-import { setSuiteResults } from '../reducers/suiteResultSlice'
+import { setSuiteResults, setRunning } from '../reducers/suiteResultSlice'
 import { setWasmMeta } from '../reducers/wasmMetaSlice'
 import { fetchData, fetchFile } from './apiHelpers'
 
@@ -38,12 +37,17 @@ export const sendFile = data => {
     }
 }
 
-export const runSuite = body => dispatch => 
+export const runSuite = body => dispatch => {
+    dispatch(setRunning(true))
     fetchData(
         'http://localhost:8000/run-suite', 
         "POST", 
         body)
-    .then(res => dispatch(setSuiteResults(res)))
-    .catch(console.error)
+        .then(res => dispatch(setSuiteResults(res)))
+        .catch(err => {
+            console.error(err)
+            dispatch(setRunning(false))
+        })
+}
     
 

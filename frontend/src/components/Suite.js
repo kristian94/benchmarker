@@ -10,6 +10,7 @@ function Suite() {
     const targetFile = useSelector(state => state.wasmMeta.targetFile)
     const instantiationOptions = useSelector(state => state.wasmMeta.instantiationOptions)
     const customSuite = useSelector(state => state.wasmMeta.customSuite)
+    const running = useSelector(state => state.suiteResults.running)
 
     const runTestSuite = () => {
         const body = {
@@ -38,7 +39,7 @@ function Suite() {
                 )
             }
             <div className="mt-2">
-                <Button text="Submizzle" onClick={runTestSuite} />
+                <Button text="Submizzle" onClick={runTestSuite} disabled={!!running} />
             </div>
         </div>
     )

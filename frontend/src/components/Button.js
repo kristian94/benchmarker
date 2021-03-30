@@ -1,9 +1,11 @@
 import React from 'react'
 
-function Button({ px = 3, py = 2, onClick, text, rounded = "rounded-2xl", classes = "" }) {
+function Button({ px = 3, py = 2, onClick, text, rounded = "rounded-2xl", classes = "", disabled }) {
     return <button
         onClick={onClick}
+        disabled={disabled}
         className={`cursor-pointer
+            disabled:opacity-50
             font-bold 
             text-white 
             py-${py}
