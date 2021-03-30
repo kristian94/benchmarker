@@ -5,7 +5,9 @@ export const wasmMetaSlice = createSlice({
     initialState: {
         wasmFileId: null,
         funcs: [],
-        targetFile: ''
+        targetFile: '',
+        instantiationOptions: null,
+        customSuite: []
     },
     reducers: {
         setWasmMeta: (state, action) => {
@@ -13,12 +15,18 @@ export const wasmMetaSlice = createSlice({
             state.wasmFileId = action.payload.uuid
             state.funcs = action.payload.funcs
             state.targetFile = action.payload.targetFile
-
-            console.log(state)
+            state.instantiationOptions = action.payload.instantiationOptions
+        },
+        addFunctionToSuite: (state, action) => {
+            console.log("add function", action)
+            state.customSuite.push(action.payload)
+        },
+        clearSuite: (state, action) => {
+            state.customSuite = []
         }
     }
 })
 
-export const { setWasmMeta } = wasmMetaSlice.actions
+export const { setWasmMeta, addFunctionToSuite, clearSuite } = wasmMetaSlice.actions
 
 export default wasmMetaSlice.reducer

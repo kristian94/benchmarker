@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { runSuite } from '../api/dataApi'
+import { addFunctionToSuite } from '../reducers/wasmMetaSlice'
 import Button from './Button'
 
 function UploadResult() {
@@ -8,26 +8,13 @@ function UploadResult() {
 
     const wasmFileId = useSelector(state => state.wasmMeta.wasmFileId)
     const wasmFuncs = useSelector(state => state.wasmMeta.funcs)
-    const targetFile = useSelector(state => state.wasmMeta.targetFile)
 
-    const runTestSuite = () => {
-        const exportContainers = Array.from(document.querySelectorAll('[data-export-name]'));
-
-        const body = {
-            id: wasmFileId,
-            targetFile,
-            exports: exportContainers.map(el => {
-                const name = el.getAttribute('data-export-name');
-                const inputs = Array.from(document.querySelectorAll(`input[name=${name}]`));
-
-                return {
-                    exportName: name,
-                    inputs: inputs.map(x => Number(x.value))
-                }
-            })
-        }
-
-        dispatch(runSuite(body))
+    const addToSuite = (functionName) => {
+        const inputs = Array.from(document.querySelectorAll(`input[name=${functionName}]`)).map(x => Number(x.value));
+        dispatch(addFunctionToSuite({
+            exportName: functionName,
+            inputs: inputs
+        }))
     }
     
     if (!wasmFileId && !wasmFuncs?.length) {
@@ -50,19 +37,17 @@ function UploadResult() {
             { wasmFileIdEl }
             <p className="text-xl">Exported functions:</p>
             <div className="px-3">
-
                 {
                     wasmFuncs.map((f, i) =>
                         <div key={i} data-export-name={f.name}>
                             <p className="font-mono text-lg mb-1">{f.name}</p>
-                            {Array(f.length).fill(0).map((_, i) => <input key={i} className="input-arg text-black mb-1 py-1 px-2 text-sm rounded" name={f.name} />)}
+                            {Array(f.length).fill(0).map((_, i) => 
+                                <input key={i} className="input-arg text-black mb-1 py-1 px-2 text-sm rounded" name={f.name} />
+                            )}
+                            <Button text="+" onClick={() => addToSuite(f.name)} />
                         </div>) 
                 }
             </div>
-            <div className="mt-2">
-                <Button text="Submizzle" onClick={runTestSuite} />
-            </div>
-            {/* <button onClick={runTestSuite}>Submizzle</button> */}
         </div>
     )
 }
