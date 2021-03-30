@@ -6,7 +6,7 @@ function Sidebar() {
     const [section, setSection] = useState(1)
 
     return (
-        <div className="flex-none w-52 px-3 pt-4 text-white bg-gray-900 dark:bg-gray-900">
+        <div className="flex-none w-52 px-3 pt-4 text-white bg-gray-900 dark:bg-gray-900 fixed h-full">
             <div className="grid grid-cols-1 gap-1 h-full content-between">
                 <div>
                     <div className="text-center">

@@ -9,11 +9,11 @@ import Tool from './views/Tool';
 function App() {
   window.document.documentElement.classList.add("dark") // forced dark mode
   return (
-    <div className="h-screen dark:bg-gray-800 dark:text-white">
+    <div>
       <HashRouter>
         <div className="flex h-full">
           <Sidebar />
-          <div className="flex-grow">
+          <div className="flex-grow pl-52">
             <Route path="/" exact component={Tool} />
             <Route path="/scenarios" component={Scenarioes} />
           </div>
