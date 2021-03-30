@@ -68,6 +68,8 @@ router.post("/wasm-upload", upload.single("wasmfile"), async (req, res) => {
 
     const { loader } = req.body;
     const importMemory = req.body.importMemory === 'true';
+    const sharedMemory = req.body.sharedMemory === 'true';
+
 
     if (req.file.mimetype !== "application/wasm") {
         return res.status(400).send("non wasm file")
@@ -77,10 +79,21 @@ router.post("/wasm-upload", upload.single("wasmfile"), async (req, res) => {
     if (!(await fileExists(pathToWasm))) {
         return res.status(500)
     }
-    const result = await getWasmExports(pathToWasm, {
+
+    const instantiationOptions: WasmInstantiationOptions = {
         importMemory, 
         loader
-    })
+    }
+
+    if(sharedMemory){
+        instantiationOptions.memoryOptions = {
+            sharedMemory: true,
+            initial: 1,
+            maximum: 1000
+        }
+    }
+
+    const result = await getWasmExports(pathToWasm, instantiationOptions)
 
     const {exports, memory} = result;
 
@@ -98,10 +111,7 @@ router.post("/wasm-upload", upload.single("wasmfile"), async (req, res) => {
 
     suites.push({
         id: req['_id'],
-        instantiationOptions: {
-            loader,
-            importMemory
-        }
+        instantiationOptions
     });
 
     res.json({
@@ -155,9 +165,14 @@ router.post('/run-suite', bodyParser.json(), async (req, res) => {
 
         const results: EnrichedWorkerResult[] = await benchmarkRunner.run(BenchmarkArgs)
 
-        console.log(results)
+        const json = {
+            instantiationOptions,
+            results
+        }
 
-        res.json(results);
+        console.log(json)
+
+        res.json(json);
     }catch(err){
         res.status(500).json(err)
     }

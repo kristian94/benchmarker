@@ -8,7 +8,7 @@ function Chart(props) {
     const chartData = {
         labels: labels,
         datasets: [{
-            label: name + ': Memory usage',
+            label: name,
             data: data
         }]
     }
@@ -22,7 +22,7 @@ function Chart(props) {
     }
 
     return (
-        <div className="bg-gray-50 rounded-lg shadow-lg">
+        <div className="bg-gray-50 rounded-lg">
             <Line data={chartData} options={options} />
         </div>
     )

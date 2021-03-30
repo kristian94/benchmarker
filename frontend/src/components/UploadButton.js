@@ -9,13 +9,14 @@ function UploadButton() {
         const FilesList = document.getElementById('wasm-upload-button').files
         const loader = document.getElementById('loader-selection').value || 'default';
         const importMemory = document.getElementById('import-memory-selection').value === 'true' || false;
-
+        const sharedMemory = document.getElementById('shared-memory-selection').value === 'true' || false;
 
         if (FilesList.length < 1) return // stop (if user selects cancel in file selector)
         const fd = new FormData()
         fd.append("wasmfile", FilesList[0])
         fd.append("loader", loader)
         fd.append("importMemory", importMemory)
+        fd.append("sharedMemory", sharedMemory)
 
         dispatch(sendFile(fd))
     }
@@ -33,6 +34,13 @@ function UploadButton() {
             <div className="mb-4">
                 <label className="block mb-1" htmlFor="import-memory-selection">Import memory</label>
                 <select defaultValue="false" className="text-black rounded py-1 px-2 text-sm" id="import-memory-selection">
+                    <option value="false">false</option>
+                    <option value="true">true</option>
+                </select>
+            </div>
+            <div className="mb-4">
+                <label className="block mb-1" htmlFor="shared-memory-selection">Shared memory</label>
+                <select defaultValue="false" className="text-black rounded py-1 px-2 text-sm" id="shared-memory-selection">
                     <option value="false">false</option>
                     <option value="true">true</option>
                 </select>
