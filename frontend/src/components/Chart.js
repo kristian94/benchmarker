@@ -22,7 +22,7 @@ function Chart(props) {
     }
 
     return (
-        <div className="bg-gray-50 rounded-lg">
+        <div className="bg-white rounded-lg">
             <Line data={chartData} options={options} />
         </div>
     )

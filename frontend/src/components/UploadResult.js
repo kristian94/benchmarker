@@ -44,7 +44,7 @@ function UploadResult() {
                             {Array(f.length).fill(0).map((_, i) => 
                                 <input key={i} className="input-arg text-black mb-1 py-1 px-2 text-sm rounded" name={f.name} />
                             )}
-                            <Button text="+" onClick={() => addToSuite(f.name)} />
+                            <Button classes="ml-2 text-sm" text="+" px={3} py={1} rounded="rounded-lg" onClick={() => addToSuite(f.name)} />
                         </div>) 
                 }
             </div>
