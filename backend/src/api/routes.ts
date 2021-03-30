@@ -12,6 +12,7 @@ import {posix as path} from 'path';
 
 import { getWasmExports, LoaderEnum, WasmInstantiationOptions } from '../containers/node-wasm-benchmark/container_src/wasm-importer'
 import { EnrichedWorkerResult, ExportInput } from "src/containers/node-wasm-benchmark/container_src/types";
+import { BenchmarkArgs } from "src/containers/node-wasm-benchmark/types";
 
 interface SuiteState {
     id: string,
@@ -65,7 +66,7 @@ router.post("/wasm-upload", upload.single("wasmfile"), async (req, res) => {
     }
     console.log(req.file) // file meta
 
-    const {loader} = req.body;
+    const { loader } = req.body;
     const importMemory = req.body.importMemory === 'true';
 
     if (req.file.mimetype !== "application/wasm") {
@@ -131,10 +132,22 @@ router.post('/run-suite', bodyParser.json(), async (req, res) => {
             importMemory: false
         };
 
-        const BenchmarkArgs = {
+        const BenchmarkArgs: BenchmarkArgs = {
             targetFile: body.targetFile,
             tempDir: getTempDirPath(id),
+
+            
             instantiationOptions: instantiationOptions,
+
+            // todo: delete this (example to show how to set memory options)
+            // instantiationOptions: Object.assign(instantiationOptions, {
+            //     memoryOptions: {
+            //         sharedMemory: true,
+            //         initial: 1,
+            //         maximum: 1000
+            //     }
+            // }),
+
             exportArgs: body.exports.map(x => Object.assign({}, x, {
                 interval: 100 // todo infer
             })),

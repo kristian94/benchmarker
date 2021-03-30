@@ -21,24 +21,28 @@ const getLoader: (LoaderEnum) => Loader = (en) => {
 
 export interface WasmImportResult {
     exports: any,
-    memory?: any 
+    memory?: any
 }
 
 export interface WasmInstantiationOptions {
     importMemory: boolean,
-    loader: LoaderEnum
+    loader: LoaderEnum,
+    memoryOptions?: {
+        sharedMemory: boolean,
+        initial: number,
+        maximum: number
+    }
 }
 
 const defaultOptions: WasmInstantiationOptions = {
     importMemory: false,
-    loader: LoaderEnum.Default
+    loader: LoaderEnum.Default,
+    memoryOptions: {
+        sharedMemory: false,
+        initial: 1,
+        maximum: 1000
+    }
 }
-
-
-
-export const getWasmExportsBackup = fileName => fs.readFile(fileName)
-    .then(WebAssembly.instantiate)
-    .then(x => x.instance.exports);
 
 export const getWasmExports: (string, wasmInstantiationOptions?) => Promise<WasmImportResult> = 
     async (filePath, options: WasmInstantiationOptions = defaultOptions) => {

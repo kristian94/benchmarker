@@ -39,8 +39,8 @@ const cmdAsync = (...c: String[]) => new Promise((resolve) => {
 
 const zip = (a, b) => new Array(a.length).fill(0).map((_, i) => [a[i], b[i]])
 
-// stretch :: Mutates. Fits the array to the input length by adding/removing elements to/form the middle of the array
-// will clone the midmost element, while the array is too short.
+// stretch :: Mutates. Fits the array to the input length by adding/removing elements to/from the middle of the array.
+// Adds new elements by copying the midmost element.
 const stretch = (array: any[], length: number) => {
     
     // too short
@@ -114,7 +114,6 @@ const stretch = (array: any[], length: number) => {
             .map(x => x.osFreeMemory)
             .reduce((a, b) => Math.max(a, b), 0);
 
-
         const normalizedSnapshots = zip(results.snapshots, dryResults.snapshots)
             .map(x => {
                 const [act, dry] = x;
@@ -132,7 +131,8 @@ const stretch = (array: any[], length: number) => {
                         external: diffOr0(act.usage, dry.usage, 'external'),
                         arrayBuffers: diffOr0(act.usage, dry.usage, 'arrayBuffers')
                     },
-                    osFreeMemory: Math.max(0, actFreeMemInv - dryFreeMemInv)
+                    osFreeMemory: Math.max(0, actFreeMemInv - dryFreeMemInv),
+                    bufferByteLength: act.bufferByteLength
                 }
             })
 

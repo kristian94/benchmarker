@@ -5,7 +5,8 @@ export type ExportInput = any[]
 export interface Snapshot {
     elapsed: number,
     usage: NodeJS.MemoryUsage,
-    osFreeMemory: number
+    osFreeMemory: number,
+    bufferByteLength?: number
 }
 
 export interface WorkerResult {
@@ -25,4 +26,14 @@ export interface WorkerData {
     inputs: ExportInput,
     dryRun: Number,
     instantiationOptions: WasmInstantiationOptions
+}
+
+export enum WorkerMessageType {
+    Memory,
+    Result
+}
+
+export interface WorkerMessage {
+    type: WorkerMessageType,
+    data: any
 }

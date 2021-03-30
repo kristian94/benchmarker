@@ -16,7 +16,7 @@
 const fs = require('fs').promises;
 const { Worker } = require('worker_threads');
 import { BenchmarkArgs } from '../types';
-import { WorkerResult, EnrichedWorkerResult, WorkerData, Snapshot } from './types'
+import { WorkerResult, EnrichedWorkerResult, WorkerData, Snapshot, WorkerMessage, WorkerMessageType } from './types'
 import { freemem} from 'os';
 const { performance } = require('perf_hooks');
 
@@ -32,6 +32,9 @@ log('args:', wasmPath, outPath, indexString, dryRunString);
 
 const snapshots: Snapshot[] = [];
 
+ 
+let getBufferByteLength: () => number = () => 0
+
 const addSnapshot = (() => {
     let start = -1;
 
@@ -42,7 +45,8 @@ const addSnapshot = (() => {
         snapshots.push({
             usage: process.memoryUsage(),
             elapsed: now - start,
-            osFreeMemory: freemem()
+            osFreeMemory: freemem(),
+            bufferByteLength: getBufferByteLength()
         })
     }
 })();
@@ -54,8 +58,12 @@ const addSnapshot = (() => {
     const exportArgs = args.exportArgs[index];
     const {inputs, exportName, interval } = exportArgs;
 
+    const sharedMemory = args.instantiationOptions.memoryOptions?.sharedMemory ?? false;
+
     log(`measuring ${exportName}@${interval}`)
     log('spawning worker...')
+
+    log('sharedMemory:', sharedMemory)
 
     // @ts-ignore
     gc();
@@ -65,8 +73,7 @@ const addSnapshot = (() => {
         addSnapshot();
     }, interval)
 
-    const workerResults: WorkerResult = await new Promise((resolve, reject) => {
-        
+    const workerResults: WorkerResult = await new Promise(async (resolve, reject) => {
         const workerData: WorkerData = {
             wasmPath,
             exportName,
@@ -79,9 +86,28 @@ const addSnapshot = (() => {
             workerData
         });
 
-        let out;
-        
-        worker.on('message', data => out = data)
+        if(sharedMemory){
+            const memory: WebAssembly.Memory = await new Promise(res => {
+                
+                worker.on('message', (message: WorkerMessage) => {
+                    if(message.type != WorkerMessageType.Memory) return;
+
+                    res(message.data);
+                })
+            })
+
+            getBufferByteLength = () => memory.buffer.byteLength;
+        }
+
+        const out: WorkerResult = await new Promise(res => {
+            worker.on('message', message => {
+                if(message.type != WorkerMessageType.Result) return;
+                        
+                res(message.data);
+            })
+        })
+
+        log('worker is done')
 
         worker.on('exit', () => resolve(out));
     });

@@ -10,7 +10,7 @@ const path = require('path');
 const { workerData, parentPort } = require('worker_threads');
 const { getWasmExports } = require('./wasm-importer');
 const { performance } = require('perf_hooks');
-import { WorkerResult, WorkerData } from './types'
+import { WorkerResult, WorkerData, WorkerMessageType, WorkerMessage } from './types'
 
 const log = (...s) => console.log('WORKER |', ...s)
 
@@ -18,18 +18,32 @@ const { wasmPath, exportName, inputs, dryRun, instantiationOptions } = workerDat
 
 const sleep = duration => new Promise(res => setTimeout(res, duration));
 
+const postMessage = (message: WorkerMessage) => parentPort.postMessage(message)
+
+const sharedMemory = instantiationOptions.memoryOptions?.sharedMemory ?? false;
+
+
 (async () => {
 
     log('instantiationOptions:', instantiationOptions)
 
-    const wModule = await (/.*?wasm$/.test(wasmPath)
-            ? getWasmExports(wasmPath, instantiationOptions)
-            : require(wasmPath))
+    const wModule = await getWasmExports(wasmPath, instantiationOptions);
     
     log('wModule:', wModule)
 
-    // wasm-pack namespaces exports under "__wasm" 
+    // wasm-pack namespaces exports under "__wasm", sigh
     const exports = wModule.__wasm ?? wModule.exports;
+
+    if(sharedMemory){
+        const {memory} = wModule;
+
+        log('messaging memory:', memory)
+
+        postMessage({
+            type: WorkerMessageType.Memory,
+            data: memory
+        })
+    }
 
     log('exports:', exports)
 
@@ -51,7 +65,12 @@ const sleep = duration => new Promise(res => setTimeout(res, duration));
         returnValue
     }
 
-    parentPort.postMessage(workerResult);
+    postMessage({
+        type: WorkerMessageType.Result,
+        data: workerResult
+    });
+
+    log('worker done, closing parentPort...')
 
     parentPort.close();
 })();
