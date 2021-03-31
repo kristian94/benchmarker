@@ -23,7 +23,7 @@ function UploadButton() {
 
     return (
         <div>
-            <p className="mb-5">Upload WebAssembly module for benchmarking</p>
+            <p className="mb-5 text-gray-300">Upload WebAssembly module for benchmarking</p>
             <div className="grid grid-cols-2 gap-4">
                 <div className="">
                     <label className="block mb-1" htmlFor="loader-selection">WebAssembly Loader</label>
