@@ -16,6 +16,14 @@
 			"problemMatcher": [],
 			"label": "API",
 			"detail": "node build/api/index.ts"
+		},
+		{
+			"label": "Run frontend+backend",
+			"dependsOn": [
+				"Start App",
+				"API"
+			],
+			"problemMatcher": []
 		}
 	]
 }
