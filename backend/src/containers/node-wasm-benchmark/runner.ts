@@ -38,6 +38,8 @@ export const run = async (args: BenchmarkArgs) => {
     const imageName = `benchmarks/${uuidv4()}`
     const containerName = uuidv4();
 
+    let results = undefined;
+
     try
     {
         await ensureTemp
@@ -59,11 +61,9 @@ export const run = async (args: BenchmarkArgs) => {
 
         await dockerCp(containerName, `/${workingDir}/results.json`, relative(path.join(args.tempDir, 'results.json')));
 
-        const results = await fs.readFile(path.join(args.tempDir, 'results.json')).then(JSON.parse);
+        results = await fs.readFile(path.join(args.tempDir, 'results.json')).then(JSON.parse);
 
         console.log(results)
-
-        return results;
 
     }catch(err){
         console.log(`An error was thrown while benchmarking ${args.targetFile}`);
@@ -73,4 +73,6 @@ export const run = async (args: BenchmarkArgs) => {
     await dockerKill(containerName).catch(() => console.info('Non-critical: kill failed'))
     await dockerRmContainer(containerName).catch(() => console.info('Non-critical: rmContainer failed'))
     await dockerRmImage(imageName).catch(() => console.info('Non-critical: rmImage failed'))
+
+    return results;
 }

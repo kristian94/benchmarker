@@ -127,7 +127,11 @@ router.post('/run-suite', async (req, res) => {
             })),
         }
         console.log(BenchmarkArgs)
-        const results: EnrichedWorkerResult[] = await benchmarkRunner.run(BenchmarkArgs)
+        const results: EnrichedWorkerResult[]|undefined = await benchmarkRunner.run(BenchmarkArgs)
+
+        if(results === undefined){
+            return res.status(500).json({})
+        }
 
         const json = {
             instantiationOptions: body.instantiationOptions,
