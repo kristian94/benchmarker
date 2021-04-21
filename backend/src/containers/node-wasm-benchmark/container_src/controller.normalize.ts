@@ -108,7 +108,16 @@ const stretch = (array: any[], length: number) => {
 
         const toMB = x => (x / 1024 / 1024).toFixed(1) + 'MB';
 
-        stretch(dryResults.snapshots, results.snapshots.length)
+        // stretch(dryResults.snapshots, results.snapshots.length)
+
+        const mapper = x => ({
+            rss: toMB(x.usage.rss),
+            elapsed: x.elapsed
+        })
+
+        console.log('results.snapshots:', results.snapshots.map(mapper))
+        console.log('dryResults.snapshots:', dryResults.snapshots.map(mapper))
+
 
         const maxFree = dryResults.snapshots.concat(results.snapshots)
             .map(x => x.osFreeMemory)
@@ -138,6 +147,8 @@ const stretch = (array: any[], length: number) => {
 
         results.originalSnapshots = results.snapshots;
         results.snapshots = normalizedSnapshots;
+
+        console.log('results(normalized).snapshots:', results.snapshots.map(mapper))
 
         return results
     }))

@@ -40,7 +40,7 @@ const defaultOptions: WasmInstantiationOptions = {
     memoryOptions: {
         sharedMemory: false,
         initial: 1,
-        maximum: 1000
+        maximum: 73142 // approx 4 GB
     }
 }
 
@@ -56,7 +56,7 @@ export const getWasmExports: (string, wasmInstantiationOptions?) => Promise<Wasm
                 env: {
                     memory: new WebAssembly.Memory({
                         initial: 1,
-                        maximum: 1000
+                        maximum: 73142 // approx 4 GB
                     })
                 }
             })

@@ -75,7 +75,7 @@ router.post("/wasm-upload", upload.single("wasmfile"), async (req, res) => {
         instantiationOptions.memoryOptions = {
             sharedMemory: true,
             initial: 1,
-            maximum: 1000
+            maximum: 73142 // approx 4 GB
         }
     }
 
