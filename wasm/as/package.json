@@ -4,6 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "npm run build-bs && npm run build-bs_uc && npm run build-ms1 && npm run build-ms2 && npm run build-module",
+    "build-bs": "asc bubble_sort.ts -b bubble_sort.wasm -O3",
+    "build-bs-uc": "asc bubble_sort_unchecked.ts -b bubble_sort_unchecked.wasm -O3",
+    "build-ms1": "asc merge_sort_v1.ts -b merge_sort_v1.wasm -O3",
+    "build-ms2": "asc merge_sort_v2.ts -b merge_sort_v2.wasm -O3",
+    "build-module": "asc module.ts -b module.wasm -O3",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
