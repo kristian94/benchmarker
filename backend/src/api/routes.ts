@@ -9,7 +9,7 @@ import * as benchmarkRunner from '../containers/node-wasm-benchmark/runner';
 
 import { posix as path } from 'path';
 
-import { getWasmExports, WasmInstantiationOptions } from '../containers/node-wasm-benchmark/container_src/wasm-importer'
+import { getWasmExports, LoaderEnum, WasmInstantiationOptions } from '../containers/node-wasm-benchmark/container_src/wasm-importer'
 import { EnrichedWorkerResult, ExportInput } from "src/containers/node-wasm-benchmark/container_src/types";
 import { BenchmarkArgs } from "src/containers/node-wasm-benchmark/types";
 
@@ -118,7 +118,7 @@ router.post('/run-suite', async (req, res) => {
         const body: RunSuiteBody = req.body;
         console.log('body:', body)
 
-        const BenchmarkArgs = {
+        const BenchmarkArgs: BenchmarkArgs = {
             targetFile: body.targetFile,
             tempDir: getTempDirPath(body.id),
             instantiationOptions: body.instantiationOptions,
@@ -127,9 +127,9 @@ router.post('/run-suite', async (req, res) => {
             })),
         }
         console.log(BenchmarkArgs)
-        const results: EnrichedWorkerResult[]|undefined = await benchmarkRunner.run(BenchmarkArgs)
+        const results: EnrichedWorkerResult[] | undefined = await benchmarkRunner.run(BenchmarkArgs)
 
-        if(results === undefined){
+        if (results === undefined) {
             return res.status(500).json({})
         }
 
@@ -140,6 +140,133 @@ router.post('/run-suite', async (req, res) => {
 
         console.log(json)
 
+        res.json(json);
+    } catch (err) {
+        res.status(500).json(err)
+    }
+})
+
+interface Scenario {
+    id: number,
+    name: string,
+    folder: string,
+    file: string,
+    instantiationOptions: WasmInstantiationOptions
+}
+
+const scenarios: Scenario[] = [
+    {
+        id: 1,
+        name: "Bubble Sort Optimised",
+        folder: "bubble_sort_unchecked",
+        file: "bubble_sort_unchecked.wasm",
+        instantiationOptions: {
+            importMemory: false,
+            loader: LoaderEnum.AssemblyScript
+        }
+    },
+    {
+        id: 2,
+        name: "Bubble Sort",
+        folder: "bubble_sort",
+        file: "bubble_sort.wasm",
+        instantiationOptions: {
+            importMemory: false,
+            loader: LoaderEnum.AssemblyScript
+        }
+    },
+    {
+        id: 3,
+        name: "Merge Sort v1",
+        folder: "merge_sort_v1",
+        file: "merge_sort_v1.wasm",
+        instantiationOptions: {
+            importMemory: false,
+            loader: LoaderEnum.AssemblyScript
+        }
+    },
+    {
+        id: 4,
+        name: "Merge Sort v2",
+        folder: "merge_sort_v2",
+        file: "merge_sort_v2.wasm",
+        instantiationOptions: {
+            importMemory: false,
+            loader: LoaderEnum.AssemblyScript
+        }
+    }
+]
+
+router.get('/scenarios', (req, res) => {
+    res.json(scenarios)
+})
+
+router.get('/scenarios/:id', async (req, res) => {
+    const id = Number(req.params.id)
+
+    console.log(id)
+    if (!id || isNaN(id)) return res.sendStatus(500)
+
+    const scenario = scenarios.find(s => s.id === id)
+    if (!scenario) return res.sendStatus(500)
+
+    const result = await getWasmExports(getTempDirPath(`${scenario.folder}/src/${scenario.file}`), scenario.instantiationOptions)
+
+    const { exports, memory } = result;
+
+    const wasmFuncs: WasmExport[] = []
+    for (const key in exports) {
+        if (typeof exports[key] == "function") {
+            const original = exports[key].original ?? exports[key];
+
+            wasmFuncs.push({
+                name: key,
+                length: original.length
+            })
+        }
+    }
+
+    res.json({
+        uuid: id,
+        funcs: wasmFuncs,
+        targetFile: scenario.file,
+        instantiationOptions: scenario.instantiationOptions
+    })
+})
+
+interface RunScenarioBody {
+    id: number,
+    func: string,
+    input: number
+}
+
+router.post('/run-scenario', async (req, res) => {
+    try {
+        const body: RunScenarioBody = req.body;
+        console.log('body:', body)
+
+        const scenario = scenarios.find(s => s.id === body.id)
+        if (!scenario) return res.sendStatus(500)
+
+        const BenchmarkArgs: BenchmarkArgs = {
+            targetFile: scenario.file,
+            tempDir: getTempDirPath(`${scenario.folder}`),
+            instantiationOptions: scenario.instantiationOptions,
+            exportArgs: [{
+                exportName: body.func,
+                inputs: [body.input],
+                interval: 100 // todo infer
+            }],
+        }
+        console.log(BenchmarkArgs)
+        const results: EnrichedWorkerResult[] | undefined = await benchmarkRunner.runScenario(BenchmarkArgs)
+        if (results === undefined)  return res.status(500).json({"error": "benchmark error"})
+
+        const json = {
+            instantiationOptions: scenario.instantiationOptions,
+            results
+        }
+        console.log(json)
         res.json(json);
     } catch (err) {
         res.status(500).json(err)

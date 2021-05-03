@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npm run build-bs && npm run build-bs_uc && npm run build-ms1 && npm run build-ms2 && npm run build-module",
+    "build": "npm run build-bs && npm run build-bs-uc && npm run build-ms1 && npm run build-ms2 && npm run build-module",
     "build-bs": "asc bubble_sort.ts -b bubble_sort.wasm -O3",
     "build-bs-uc": "asc bubble_sort_unchecked.ts -b bubble_sort_unchecked.wasm -O3",
     "build-ms1": "asc merge_sort_v1.ts -b merge_sort_v1.wasm -O3",

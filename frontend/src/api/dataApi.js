@@ -1,4 +1,5 @@
 import { addPosts, addUser } from '../reducers/dataSlice'
+import { addScenarios, addScenariosFuncs, selectScenario } from '../reducers/scenarioSlice'
 import { setSuiteResults, setRunning } from '../reducers/suiteResultSlice'
 import { setWasmMeta } from '../reducers/wasmMetaSlice'
 import { fetchData, fetchFile } from './apiHelpers'
@@ -40,8 +41,8 @@ export const sendFile = data => {
 export const runSuite = body => dispatch => {
     dispatch(setRunning(true))
     fetchData(
-        'http://localhost:8000/run-suite', 
-        "POST", 
+        'http://localhost:8000/run-suite',
+        "POST",
         body)
         .then(res => dispatch(setSuiteResults(res)))
         .catch(err => {
@@ -49,5 +50,39 @@ export const runSuite = body => dispatch => {
             dispatch(setRunning(false))
         })
 }
-    
 
+export const getScenarios = () => {
+    return async dispatch => {
+        try {
+            const res = await fetchData('http://localhost:8000/scenarios', 'GET')
+            dispatch(addScenarios(res))
+        } catch (e) {
+            console.log(e);
+        }
+    }
+}
+
+export const getScenarioMeta = (id) => {
+    return async dispatch => {
+        dispatch(selectScenario(id))
+        try {
+            const res = await fetchData(`http://localhost:8000/scenarios/${id}`, 'GET')
+            dispatch(addScenariosFuncs(res))
+        } catch (e) {
+            console.log(e);
+        }
+    }
+}
+
+export const runScenario = body => dispatch => {
+    dispatch(setRunning(true))
+    fetchData(
+        'http://localhost:8000/run-scenario',
+        "POST",
+        body)
+        .then(res => dispatch(setSuiteResults(res)))
+        .catch(err => {
+            console.error(err)
+            dispatch(setRunning(false))
+        })
+}

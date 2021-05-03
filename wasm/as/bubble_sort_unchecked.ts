@@ -9,7 +9,7 @@ export function genAndBubbleSort(length: i32): void {
 function generateBubbleSortArray(length: i32): void {
   const arr = new Array<i32>(length)
   for (let i = 0, k = arr.length; i < k; ++i) {
-    arr[i] = i32((Math.random() * 2.0 - 1.0) * i32.MAX_VALUE)
+    unchecked(arr[i] = i32((Math.random() * 2.0 - 1.0) * i32.MAX_VALUE))
   }
   bubbleSortArray = arr
 }
@@ -22,8 +22,8 @@ function bubbleSort(): void {
       if (unchecked(bubbleSortArray[i - 1]) > unchecked(bubbleSortArray[i])) {
         done = false;
         var tmp = unchecked(bubbleSortArray[i - 1]);
-        bubbleSortArray[i - 1] = unchecked(bubbleSortArray[i])
-        bubbleSortArray[i] = tmp;
+        unchecked(bubbleSortArray[i - 1] = bubbleSortArray[i])
+        unchecked(bubbleSortArray[i] = tmp);
       }
     }
   }
