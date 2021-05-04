@@ -10,21 +10,22 @@ export interface Snapshot {
 }
 
 export interface WorkerResult {
-    executionDuration: Number,
+    executionDuration: number,
     returnValue: any
 }
 
 export interface EnrichedWorkerResult extends WorkerResult {
     inputs: ExportInput,
     exportName: string,
-    snapshots: Snapshot[]
+    snapshots: Snapshot[],
+    maxRss: number
 }
 
 export interface WorkerData {
     wasmPath: string,
     exportName: string,
     inputs: ExportInput,
-    dryRun: Number,
+    dryRun: number,
     instantiationOptions: WasmInstantiationOptions
 }
 
