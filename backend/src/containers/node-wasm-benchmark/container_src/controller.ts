@@ -92,13 +92,14 @@ const stretch = (array: any[], length: number) => {
                 return x => x[prop] > lowerOutlierBound && x[prop] < upperOutlierBound
             }
 
-            const snapshotLengthMode = mode(resultsList.map(x => x.snapshots.length));
 
             return resultsList
                 .filter(getOutlierFilter('executionDuration'))
                 .filter(getOutlierFilter('maxRss'))
-                .filter(x => x.snapshots.length === snapshotLengthMode)
+                // .filter(x => x.snapshots.length === snapshotLengthMode)
         });
+
+        const snapshotLengthMode = mode(resultsList.map(x => x.snapshots.length));
 
         const resultsCount = resultsList.length;
 
@@ -111,12 +112,12 @@ const stretch = (array: any[], length: number) => {
 
             maxRss: a.maxRss + b.maxRss,
             executionDuration: a.executionDuration + b.executionDuration,
-            snapshots: zip(a.snapshots, b.snapshots).map(x => addProps(x[0], x[1]))
+            snapshots: a.snapshots.length === snapshotLengthMode ? a.snapshots : b.snapshots
         }))
 
         results.maxRss = results.maxRss / resultsCount;
         results.executionDuration = results.executionDuration / resultsCount;
-        results.snapshots = mapNumericalPropsRecursive(results.snapshots, x => x / resultsCount);
+        // results.snapshots = mapNumericalPropsRecursive(results.snapshots, x => x / resultsCount);
 
         const dryArgs = [wasmPath, `results-${zeroPad(3)(i)}.dry.json`, i, Math.round(results.executionDuration)]
 

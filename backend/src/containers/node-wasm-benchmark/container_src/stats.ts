@@ -23,9 +23,9 @@ export const median = (arr: number[]) => q50(arr);
 
 export const iqr = (arr: number[]) => q75(arr) - q25(arr);
 
-export const getLowerOutlierBound = (arr: number[]) => q25(arr) - iqr(arr);
+export const getLowerOutlierBound = (arr: number[]) => q25(arr) - iqr(arr) * 1.5;
 
-export const getUpperOutlierBound = (arr: number[]) => q75(arr) + iqr(arr);
+export const getUpperOutlierBound = (arr: number[]) => q75(arr) + iqr(arr) * 1.5;
 
 export const mode = (arr: number[]) => Number(
     Object.entries(arr.reduce((o, x) => Object.assign(o, { [x]: (o[x] ?? 0) + 1 }), {}))
