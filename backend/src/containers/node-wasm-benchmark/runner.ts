@@ -56,7 +56,7 @@ export const run = async (args: BenchmarkArgs) => {
         await dockerStart(containerName);
         await dockerExec(containerName, [
             'node',
-            `${workingDir}/controller.normalize.js`
+            `${workingDir}/controller.js`
         ]);
 
         await dockerCp(containerName, `/${workingDir}/results.json`, relative(path.join(args.tempDir, 'results.json')));
@@ -112,7 +112,7 @@ export const runScenario = async (args: BenchmarkArgs) => {
         await dockerStart(containerName);
         await dockerExec(containerName, [
             'node',
-            `${workingDir}/controller.normalize.js`
+            `${workingDir}/controller.js`
         ]);
 
         await dockerCp(containerName, `/${workingDir}/results.json`, relative(path.join(args.tempDir, 'results.json')));

@@ -124,7 +124,8 @@ const addSnapshot = (() => {
         ...workerResults,
         snapshots,
         inputs,
-        exportName
+        exportName,
+        maxRss: snapshots.map(x => x.usage.rss).reduce((a, b) => Math.max(a, b))
     };
 
     log('writing results to file', outPath);
