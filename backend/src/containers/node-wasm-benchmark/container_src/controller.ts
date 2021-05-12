@@ -73,7 +73,7 @@ const stretch = (array: any[], length: number) => {
 
         const [, resultsFile, i] = args;
 
-        const numberOfRuns = 10;
+        const numberOfRuns = 50;
         
         const resultsList: EnrichedWorkerResult[] = await sequentialAsync(new Array(numberOfRuns).fill(0).map((_, pos) => async () => {
             log(`Starting run ${pos + 1}/${numberOfRuns}...`)

@@ -5,4 +5,7 @@ temp/*
 !temp/bubble_sort_unchecked
 !temp/merge_sort_v1
 !temp/merge_sort_v2
+!temp/merge_sort_v2_minimal
+!temp/merge_sort_v2_stub
+!temp/merge_sort_v2_optimized
 uploads/

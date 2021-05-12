@@ -194,6 +194,36 @@ const scenarios: Scenario[] = [
             importMemory: false,
             loader: LoaderEnum.AssemblyScript
         }
+    },
+    {
+        id: 5,
+        name: "Merge Sort v2 minimal",
+        folder: "merge_sort_v2_minimal",
+        file: "merge_sort_v2_minimal.wasm",
+        instantiationOptions: {
+            importMemory: false,
+            loader: LoaderEnum.AssemblyScript
+        }
+    },
+    {
+        id: 6,
+        name: "Merge Sort v2 stub",
+        folder: "merge_sort_v2_stub",
+        file: "merge_sort_v2_stub.wasm",
+        instantiationOptions: {
+            importMemory: false,
+            loader: LoaderEnum.AssemblyScript
+        }
+    },
+    {
+        id: 7,
+        name: "Merge Sort v2 optimized",
+        folder: "merge_sort_v2_optimized",
+        file: "merge_sort_v2_optimized.wasm",
+        instantiationOptions: {
+            importMemory: false,
+            loader: LoaderEnum.AssemblyScript
+        }
     }
 ]
 
@@ -255,7 +285,7 @@ router.post('/run-scenario', async (req, res) => {
             exportArgs: [{
                 exportName: body.func,
                 inputs: [body.input],
-                interval: 100 // todo infer
+                interval: 10 // todo infer
             }],
         }
         console.log(BenchmarkArgs)
