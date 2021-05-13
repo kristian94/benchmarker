@@ -4,9 +4,9 @@ export type ExportInput = any[]
 
 export interface Snapshot {
     elapsed: number,
-    usage: NodeJS.MemoryUsage,
-    osFreeMemory: number,
-    bufferByteLength?: number
+    usage: {
+        rss: number
+    }
 }
 
 export interface WorkerResult {
@@ -18,20 +18,25 @@ export interface EnrichedWorkerResult extends WorkerResult {
     inputs: ExportInput,
     exportName: string,
     snapshots: Snapshot[],
-    maxRss: number
+    maxRss: number,
+}
+
+export interface AggregatedResults extends EnrichedWorkerResult {
+    stdDev: number,
+    outliers: number
 }
 
 export interface WorkerData {
     wasmPath: string,
     exportName: string,
     inputs: ExportInput,
-    dryRun: number,
     instantiationOptions: WasmInstantiationOptions
 }
 
 export enum WorkerMessageType {
     Memory,
-    Result
+    Result,
+    Continue
 }
 
 export interface WorkerMessage {

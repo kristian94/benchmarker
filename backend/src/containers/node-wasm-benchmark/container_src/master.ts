@@ -1,137 +1,116 @@
-/**
- *  tests a single export
- *  
- *  #args
- *  wasmPath    (path to the wasm file to be imported)
- *  exportName  (name of the export to test)
- *  outPath     (we save the test result to this file)
- *  index       (index in the args.json file)
- *  dryRun      (integer, if above 0, does a "dry" run of the measurement, where the execution of the function
- *              is replaced with a timeout, with a duration that matches the value of dryRun)
- * 
- *  this file spawns a worker, measures memory usage and outputs
- *  results into a file
- */
-
-const fs = require('fs').promises;
-const { Worker } = require('worker_threads');
+import { promises as fs } from 'fs';
+import { Worker } from 'worker_threads';
 import { BenchmarkArgs } from '../types';
-import { WorkerResult, EnrichedWorkerResult, WorkerData, Snapshot, WorkerMessage, WorkerMessageType } from './types'
-import { freemem} from 'os';
-const { performance } = require('perf_hooks');
+import { WorkerResult, EnrichedWorkerResult, WorkerData,  WorkerMessage, WorkerMessageType, Snapshot } from './types'
+import { performance } from 'perf_hooks';
+import { whenMessage } from './utils';
 
-
-const [ , , wasmPath, outPath, indexString, dryRunString] = process.argv;
-
+const [ , , wasmPath, outPath, indexString] = process.argv;
 const index = Number(indexString);
-const dryRun = Number(dryRunString);
+const delayAmount = 10;
 
-const log = (...s) => console.log('MASTER |', ...s);
+const normalizeSnapshots = (snapshots: Snapshot[]) => {
+    const zero = snapshots[0].usage.rss;
 
-log('args:', wasmPath, outPath, indexString, dryRunString);
+    return snapshots.map(x => Object.assign(x, {usage: {rss: x.usage.rss - zero}}))
+}
 
-const snapshots: Snapshot[] = [];
+interface MemoryIntervalModule {
+    start: (number) => void,
+    stop: () => void,
+    getSnapshots: () => Snapshot[],
+    addSnapshot: () => void
+}
 
- 
-let getBufferByteLength: () => number = () => 0
+const memoryInterval: MemoryIntervalModule = (() => {
 
-const addSnapshot = (() => {
-    let start = -1;
+    let id;
 
-    return () => {
-        const now = performance.now(); 
-        if(start === -1) start = now;
-        
-        snapshots.push({
-            usage: process.memoryUsage(),
-            elapsed: now - start,
-            osFreeMemory: freemem(),
-            bufferByteLength: getBufferByteLength()
-        })
+    const snapshots: Snapshot[] = [];
+
+    const addSnapshot = (() => {
+        let start = -1;
+    
+        return () => {
+            const now = performance.now(); 
+            if(start === -1) start = now;
+            
+            snapshots.push({
+                usage: process.memoryUsage(),
+                elapsed: now - start
+            })
+        }
+    })();
+
+    const start = (duration) => {
+        id = setInterval(() => {
+            addSnapshot();
+        }, duration)
+    }
+
+    const stop = () => {
+        clearInterval(id);
+    }
+
+    const getSnapshots = () => snapshots;
+
+    return {
+        start,
+        stop,
+        getSnapshots,
+        addSnapshot
     }
 })();
 
-;(async () => {
 
-    const args: BenchmarkArgs = await fs.readFile('args.json').then(JSON.parse);
+;(async () => {
+    const args: BenchmarkArgs = await fs.readFile('args.json', {encoding: 'utf-8'}).then(JSON.parse);
     const instantiationOptions = args.instantiationOptions;
     const exportArgs = args.exportArgs[index];
     const {inputs, exportName, interval } = exportArgs;
 
-    const sharedMemory = args.instantiationOptions.memoryOptions?.sharedMemory ?? false;
+    const workerData: WorkerData = {
+        wasmPath,
+        exportName,
+        inputs,
+        instantiationOptions
+    }
 
-    log(`measuring ${exportName}@${interval}`)
-    log('spawning worker...')
-
-    log('sharedMemory:', sharedMemory)
-
-    // @ts-ignore
-    gc();
-    addSnapshot();
-
-    const iid = setInterval(() => {
-        addSnapshot();
-    }, interval)
-
-    const workerResults: WorkerResult = await new Promise(async (resolve, reject) => {
-        const workerData: WorkerData = {
-            wasmPath,
-            exportName,
-            inputs,
-            dryRun,
-            instantiationOptions
-        }
-        
-        const worker = new Worker('./worker.js', {
-            workerData
-        });
-
-        if(sharedMemory){
-            const memory: WebAssembly.Memory = await new Promise(res => {
-                
-                worker.on('message', (message: WorkerMessage) => {
-                    if(message.type != WorkerMessageType.Memory) return;
-
-                    res(message.data);
-                })
-            })
-
-            getBufferByteLength = () => memory.buffer.byteLength;
-        }
-
-        const out: WorkerResult = await new Promise(res => {
-            worker.on('message', message => {
-                if(message.type != WorkerMessageType.Result) return;
-                        
-                res(message.data);
-            })
-        })
-
-        log('worker is done')
-
-        worker.on('exit', () => resolve(out));
+    const worker = new Worker('./worker.js', {
+        workerData
     });
 
-    clearInterval(iid);
+    const continueMessage: WorkerMessage = {
+        type: WorkerMessageType.Continue,
+        data: 0
+    }
+
+    setTimeout(() => {
+        memoryInterval.start(interval);
+        worker.postMessage(continueMessage);
+    }, delayAmount);
+
+    const workerResults = await whenMessage<WorkerResult>(worker, WorkerMessageType.Result);
+
+    memoryInterval.stop();
 
     // @ts-ignore
     gc();
-    addSnapshot();
 
-    log('Worker finished, elapsed/result:', workerResults.executionDuration, workerResults.returnValue);
-    
+    memoryInterval.addSnapshot();
+
+    worker.postMessage(continueMessage);
+
+    const snapshots = normalizeSnapshots(memoryInterval.getSnapshots());
+
     const json: EnrichedWorkerResult = {
         ...workerResults,
-        snapshots,
+        snapshots: snapshots,
         inputs,
         exportName,
         maxRss: snapshots.map(x => x.usage.rss).reduce((a, b) => Math.max(a, b))
     };
 
-    log('writing results to file', outPath);
-
-    await fs.writeFile(outPath, JSON.stringify(json));
-
-})()
-
-export {}
+    await fs.writeFile(outPath, JSON.stringify(json))
+    
+})();

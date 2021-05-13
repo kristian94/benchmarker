@@ -1,4 +1,5 @@
-const fs = require('fs').promises;
+import { WorkerMessage, WorkerMessageType } from "./types";
+import { Worker } from 'worker_threads';
 
 // sequentialAsync :: Array (() -> Promise) -> Promise          // sequential alternative to Promise.all
 export const sequentialAsync = promiseThunks => {
@@ -9,41 +10,9 @@ export const sequentialAsync = promiseThunks => {
         Promise.resolve()).then(() => results)
 }
 
-export const addProps = <T extends Object>(a: T, b: T) => {
-    const x: any = {};
-    for(const key in a){
-        if(!a.hasOwnProperty(key)) continue;
-
-        const A = a[key];
-        const B = b[key];
-
-        if(typeof(A) === 'object' && A != null){
-            x[key] = addProps(A, B)
-            continue;
-        }
-
-        if(typeof(A) === 'number' && typeof(B) === 'number'){
-            x[key] = A + B;
-            continue;
-        }
-
-        x[key] = A;
-    }
-    return x;
-}
-
-export const mapNumericalPropsRecursive = (o: any, f: (number) => any) => {
-    const x = new o.constructor();
-    for(const key in o){
-        if(!o.hasOwnProperty(key)) continue;
-        const O = o[key];
-        if(typeof O === 'object' && O != null){
-            x[key] = mapNumericalPropsRecursive(O, f);
-        }
-
-        if(typeof O === 'number'){
-            x[key] = f(O);
-        }
-    }
-    return x;
-}
+export const whenMessage = <T>(worker: Worker, messageType: WorkerMessageType) => new Promise<T>(res => {
+    worker.once('message', (message: WorkerMessage) => {
+        if(message.type != messageType) return;
+        res(message.data);
+    })
+})

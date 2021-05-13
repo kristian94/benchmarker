@@ -10,7 +10,7 @@ import * as benchmarkRunner from '../containers/node-wasm-benchmark/runner';
 import { posix as path } from 'path';
 
 import { getWasmExports, LoaderEnum, WasmInstantiationOptions } from '../containers/node-wasm-benchmark/container_src/wasm-importer'
-import { EnrichedWorkerResult, ExportInput } from "src/containers/node-wasm-benchmark/container_src/types";
+import { AggregatedResults, ExportInput } from "src/containers/node-wasm-benchmark/container_src/types";
 import { BenchmarkArgs } from "src/containers/node-wasm-benchmark/types";
 
 const storage = multer.diskStorage({
@@ -127,7 +127,7 @@ router.post('/run-suite', async (req, res) => {
             })),
         }
         console.log(BenchmarkArgs)
-        const results: EnrichedWorkerResult[] | undefined = await benchmarkRunner.run(BenchmarkArgs)
+        const results: AggregatedResults[] | undefined = await benchmarkRunner.run(BenchmarkArgs)
 
         if (results === undefined) {
             return res.status(500).json({})
@@ -259,7 +259,7 @@ router.post('/run-scenario', async (req, res) => {
             }],
         }
         console.log(BenchmarkArgs)
-        const results: EnrichedWorkerResult[] | undefined = await benchmarkRunner.runScenario(BenchmarkArgs)
+        const results: AggregatedResults[] | undefined = await benchmarkRunner.runScenario(BenchmarkArgs)
         if (results === undefined)  return res.status(500).json({"error": "benchmark error"})
 
         const json = {

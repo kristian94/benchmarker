@@ -1,61 +1,27 @@
-/**
- *  This file should:
- * 
- *  - run the input file function
- *  - message return value to master process
- *  
- */
-
-const path = require('path');
 const { workerData, parentPort } = require('worker_threads');
 const { getWasmExports } = require('./wasm-importer');
 const { performance } = require('perf_hooks');
+import { whenMessage } from './utils'; 
 import { WorkerResult, WorkerData, WorkerMessageType, WorkerMessage } from './types'
 
-const log = (...s) => console.log('WORKER |', ...s)
-
-const { wasmPath, exportName, inputs, dryRun, instantiationOptions } = workerData as WorkerData;
-
-const sleep = duration => new Promise(res => setTimeout(res, duration));
-
-const postMessage = (message: WorkerMessage) => parentPort.postMessage(message)
-
-const sharedMemory = instantiationOptions.memoryOptions?.sharedMemory ?? false;
-
+const { wasmPath, exportName, inputs, instantiationOptions } = workerData as WorkerData;
+const log = (...s) => console.log('WORKER |', ...s);
 
 (async () => {
-
-    log('instantiationOptions:', instantiationOptions)
-
     const wModule = await getWasmExports(wasmPath, instantiationOptions);
-    
-    log('wModule:', wModule)
 
-    // wasm-pack namespaces exports under "__wasm", sigh
-    const exports = wModule.__wasm ?? wModule.exports;
+    const exports = wModule.exports;
 
-    if(sharedMemory){
-        const {memory} = wModule;
+    // @ts-ignore
+    gc();
 
-        log('messaging memory:', memory)
-
-        postMessage({
-            type: WorkerMessageType.Memory,
-            data: memory
-        })
-    }
-
-    log('exports:', exports)
+    log('awaiting first continue')
+    await whenMessage(parentPort, WorkerMessageType.Continue);
+    log('first continue received')
 
     const before = performance.now();
 
-    let returnValue;
-
-    if(dryRun > 0){
-        await sleep(dryRun).then(_ => null)
-    }else{
-        returnValue = exports[exportName](...inputs);;
-    }
+    const returnValue = exports[exportName](...inputs);
 
     const after = performance.now();
     const executionDuration = after - before;
@@ -65,12 +31,14 @@ const sharedMemory = instantiationOptions.memoryOptions?.sharedMemory ?? false;
         returnValue
     }
 
-    postMessage({
+    parentPort.postMessage({
         type: WorkerMessageType.Result,
         data: workerResult
     });
 
-    log('worker done, closing parentPort...')
+    log('awaiting second continue')
+    await whenMessage(parentPort, WorkerMessageType.Continue);
+    log('second continue received')
 
     parentPort.close();
 })();
