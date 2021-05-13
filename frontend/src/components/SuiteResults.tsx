@@ -15,8 +15,8 @@ interface ResultProps {
     inputs: any[],
     executionDuration: number,
     peakRSS: number
-    peakOSFreeMemoryOccupation: number
-    peakBufferLength: number
+    stdDev: number
+    outliers: number
 }
 
 function SuiteResults() {
@@ -50,8 +50,8 @@ function SuiteResults() {
         inputs: x.inputs,
         executionDuration: x.executionDuration,
         peakRSS: max(x.snapshots.map(x => toMb(x.usage.rss))),
-        peakOSFreeMemoryOccupation: max(x.snapshots.map(x => toMb(x.osFreeMemory))),
-        peakBufferLength: max(x.snapshots.map(x => toMb(x.bufferByteLength))),
+        stdDev: toMb(x.stdDev),
+        outliers: x.outliers,
     })) 
 
     return (
@@ -67,8 +67,8 @@ function SuiteResults() {
                         [
                             ['Duration', `${x.executionDuration.toFixed(2)} ms`],
                             ['Peak RSS', `${x.peakRSS.toFixed(2)} MB`],
-                            ['Peak OS Free Memory Occupation', `${x.peakOSFreeMemoryOccupation.toFixed(2)} MB`],
-                            ['Peak Wasm Buffer Length', `${x.peakBufferLength.toFixed(2)} MB`],
+                            ['Standard Deviation (RSS)', `${x.stdDev.toFixed(2)} MB`],
+                            ['Outliers (of 25 iterations)', `${x.outliers}`],
                         ].map(x => 
                             <>
                                 <p className="col-start-1 text-gray-300">{x[0]}</p> <span className="font-bold col-start-2">{x[1]}</span>
@@ -79,10 +79,7 @@ function SuiteResults() {
                 </div>
                 <Chart 
                     labels={x.labels} 
-                    datasets={
-                        sharedMemory 
-                            ? [x.RSSSet, x.freeMemorySet, x.bufferLengthSet]
-                            : [x.RSSSet, x.freeMemorySet]}></Chart>
+                    datasets={[x.RSSSet]}></Chart>
                 <HR></HR>
             </div> 
             
