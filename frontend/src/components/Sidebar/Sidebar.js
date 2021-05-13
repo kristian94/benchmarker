@@ -10,7 +10,7 @@ function Sidebar() {
             <div className="grid grid-cols-1 gap-1 h-full content-between">
                 <div>
                     <div className="text-center">
-                        <h1 className="font-bold mb-3 text-2xl">Benchmarker</h1>
+                        <h1 className="font-bold mb-3 text-2xl">WBT</h1>
                     </div>
                     <hr className="mb-3" />
                     <div className="grid grid-cols-1 gap-1">

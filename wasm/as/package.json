@@ -8,7 +8,12 @@
     "build-bs": "asc bubble_sort.ts -b bubble_sort.wasm -O3",
     "build-bs-uc": "asc bubble_sort_unchecked.ts -b bubble_sort_unchecked.wasm -O3",
     "build-ms1": "asc merge_sort_v1.ts -b merge_sort_v1.wasm -O3",
+    "build-ms1-minimal": "asc merge_sort_v1.ts -b merge_sort_v1_minimal.wasm -O3 --runtime=minimal",
+    "build-ms1-stub": "asc merge_sort_v1.ts -b merge_sort_v1_stub.wasm -O3 --runtime=stub",
     "build-ms2": "asc merge_sort_v2.ts -b merge_sort_v2.wasm -O3",
+    "build-ms2-minimal": "asc merge_sort_v2.ts -b merge_sort_v2_minimal.wasm -O3 --runtime=minimal",
+    "build-ms2-stub": "asc merge_sort_v2.ts -b merge_sort_v2_stub.wasm -O3 --runtime=stub",
+    "build-ms2-optimized": "asc merge_sort_v2_optimized.ts -b merge_sort_v2_optimized.wasm -O3",
     "build-module": "asc module.ts -b module.wasm -O3",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,9 +21,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@assemblyscript/loader": "^0.18.11"
+    "@assemblyscript/loader": "0.18.11"
   },
   "devDependencies": {
-    "assemblyscript": "^0.18.11"
+    "assemblyscript": "0.18.11"
   }
 }
