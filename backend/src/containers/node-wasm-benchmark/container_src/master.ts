@@ -94,9 +94,6 @@ const memoryInterval: MemoryIntervalModule = (() => {
 
     memoryInterval.stop();
 
-    // @ts-ignore
-    gc();
-
     memoryInterval.addSnapshot();
 
     worker.postMessage(continueMessage);

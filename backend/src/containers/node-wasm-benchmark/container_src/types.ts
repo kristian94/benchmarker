@@ -1,12 +1,10 @@
-import { WasmInstantiationOptions } from "./wasm-importer";
+import { WasmInstantiationOptions } from "./abstract-loader";
 
 export type ExportInput = any[]
 
 export interface Snapshot {
     elapsed: number,
-    usage: {
-        rss: number
-    }
+    rss: number
 }
 
 export interface WorkerResult {
@@ -21,8 +19,9 @@ export interface EnrichedWorkerResult extends WorkerResult {
     maxRss: number,
 }
 
-export interface AggregatedResults extends EnrichedWorkerResult {
-    stdDev: number,
+export interface AggregatedResult extends EnrichedWorkerResult {
+    rssStdDev: number,
+    durationrssStdDev: number,
     outliers: number
 }
 

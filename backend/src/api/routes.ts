@@ -9,8 +9,8 @@ import * as benchmarkRunner from '../containers/node-wasm-benchmark/runner';
 
 import { posix as path } from 'path';
 
-import { getWasmExports, LoaderEnum, WasmInstantiationOptions } from '../containers/node-wasm-benchmark/container_src/wasm-importer'
-import { AggregatedResults, ExportInput } from "src/containers/node-wasm-benchmark/container_src/types";
+import { load, LoaderEnum, WasmInstantiationOptions } from '../containers/node-wasm-benchmark/container_src/abstract-loader'
+import { AggregatedResult, ExportInput } from "src/containers/node-wasm-benchmark/container_src/types";
 import { BenchmarkArgs } from "src/containers/node-wasm-benchmark/types";
 
 const storage = multer.diskStorage({
@@ -79,9 +79,7 @@ router.post("/wasm-upload", upload.single("wasmfile"), async (req, res) => {
         }
     }
 
-    const result = await getWasmExports(pathToWasm, instantiationOptions)
-
-    const { exports, memory } = result;
+    const exports = await load(pathToWasm, instantiationOptions)
 
     const wasmFuncs: WasmExport[] = []
     for (const key in exports) {
@@ -127,7 +125,7 @@ router.post('/run-suite', async (req, res) => {
             })),
         }
         console.log(BenchmarkArgs)
-        const results: AggregatedResults[] | undefined = await benchmarkRunner.run(BenchmarkArgs)
+        const results: AggregatedResult[] | undefined = await benchmarkRunner.run(BenchmarkArgs)
 
         if (results === undefined) {
             return res.status(500).json({})
@@ -240,9 +238,7 @@ router.get('/scenarios/:id', async (req, res) => {
     const scenario = scenarios.find(s => s.id === id)
     if (!scenario) return res.sendStatus(500)
 
-    const result = await getWasmExports(getTempDirPath(`${scenario.folder}/src/${scenario.file}`), scenario.instantiationOptions)
-
-    const { exports, memory } = result;
+    const exports = await load(getTempDirPath(`${scenario.folder}/src/${scenario.file}`), scenario.instantiationOptions)
 
     const wasmFuncs: WasmExport[] = []
     for (const key in exports) {
@@ -289,7 +285,7 @@ router.post('/run-scenario', async (req, res) => {
             }],
         }
         console.log(BenchmarkArgs)
-        const results: AggregatedResults[] | undefined = await benchmarkRunner.runScenario(BenchmarkArgs)
+        const results: AggregatedResult[] | undefined = await benchmarkRunner.runScenario(BenchmarkArgs)
         if (results === undefined)  return res.status(500).json({"error": "benchmark error"})
 
         const json = {

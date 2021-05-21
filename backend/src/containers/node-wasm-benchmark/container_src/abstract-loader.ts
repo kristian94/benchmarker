@@ -12,14 +12,9 @@ interface Loader {
     instantiate: Function
 }
 
-const getLoader: (LoaderEnum) => Loader = (en) => {
-        switch(en){
-            case LoaderEnum.AssemblyScript: return AssemblyScriptLoader
-            default: return WebAssembly
-        }
-    }  
+ 
 
-export interface WasmImportResult {
+export interface WasmLoadResult {
     exports: any,
     memory?: any
 }
@@ -44,28 +39,23 @@ const defaultOptions: WasmInstantiationOptions = {
     }
 }
 
-export const getWasmExports: (string, wasmInstantiationOptions?) => Promise<WasmImportResult> = 
+const getLoader: (LoaderEnum) => Loader = (en) => {
+    switch(en){
+        case LoaderEnum.AssemblyScript: return AssemblyScriptLoader
+        default: return WebAssembly
+    }
+} 
+
+export const load: (string, wasmInstantiationOptions?) => Promise<WasmLoadResult> = 
     async (filePath, options: WasmInstantiationOptions = defaultOptions) => {
 
         const file = await fs.readFile(filePath);
 
         const loader = getLoader(options.loader);
 
-        const wModule = await (options.importMemory
-            ? loader.instantiate(file, {
-                env: {
-                    memory: new WebAssembly.Memory({
-                        initial: 1,
-                        maximum: 73142 // approx 4 GB
-                    })
-                }
-            })
-            : loader.instantiate(file))
+        const module = await loader.instantiate(file)
 
-        return {
-            exports: wModule.instance.exports,
-            memory: wModule.instance.exports.memory
-        }
+        return module.instance.exports
     }
 
 export default {}

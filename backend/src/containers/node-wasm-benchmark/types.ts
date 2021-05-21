@@ -1,5 +1,5 @@
 import { ExportInput } from "./container_src/types";
-import { WasmInstantiationOptions } from "./container_src/wasm-importer";
+import { WasmInstantiationOptions } from "./container_src/abstract-loader";
 
 export interface BenchmarkExportArgs {
     exportName: string,

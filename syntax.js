@@ -2,30 +2,31 @@
 
 // ## Basic
 
-WebAssembly
-  .instantiateStreaming(
-    fetch("sorting.wasm"), 
-    {})
-  .then(obj => {
-    obj.instance.exports.mergeSort(numbers);
-  })
+WebAssembly.instantiateStreaming(
+  fetch("build/sorting.wasm")
+).then(result => {
+  result.instance.exports.mergeSort(
+    numbers
+  );
+})
 
+// ## AssemblyScript
+import instantiate 
+  from "assemblyscript-loader"; 
+ 
+instantiate(
+  fetch("build/sorting.wasm")
+).then(result => {
+  result.exports.mergeSort(
+    numbers
+  )
+});
 
 // ## Rust
 import init, {mergeSort} 
-    from "./pkg/sorting.js";
+  from "./pkg/sorting.js";
 
 init()
   .then(() => {
     mergeSort(numbers)
-  });
-
-
-// ## AssemblyScript
-import load 
-    from "assemblyscript-loader"; 
- 
-load("./build/sorting.wasm")
-  .then(module => {
-    module.exports.mergeSort(numbers)
   });

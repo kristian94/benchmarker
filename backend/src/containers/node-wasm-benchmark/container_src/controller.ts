@@ -1,6 +1,6 @@
 import { BenchmarkArgs } from "../types";
-import { getLowerOutlierBound, getUpperOutlierBound, median, mode, stdDev } from "./stats";
-import { AggregatedResults, EnrichedWorkerResult, Snapshot } from "./types";
+import { getLowerOutlierBound, getUpperOutlierBound, median, mode, standardDeviation } from "./stats";
+import { AggregatedResult, EnrichedWorkerResult, Snapshot } from "./types";
 import { promises as fs} from 'fs';
 import { mean } from './stats'
 
@@ -34,7 +34,6 @@ const cmdAsync = (...c: String[]) => new Promise((resolve) => {
 
             await cmdAsync('node', 
                 '--experimental-wasm-threads', 
-                '--expose-gc', 
                 'master', 
                 ...args.map(x => x.toString()));
 
@@ -62,17 +61,18 @@ const cmdAsync = (...c: String[]) => new Promise((resolve) => {
             }
         }); 
 
-        log('stdDev (maxRSS):', stdDev(resultsList.map(x => x.maxRss)));
+        log('rssStdDev (maxRSS):', standardDeviation(resultsList.map(x => x.maxRss)));
 
-        const reducedResult: AggregatedResults = {
+        const reducedResult: AggregatedResult = {
             inputs: resultsList[0].inputs,
             exportName: resultsList[0].exportName,
             returnValue: resultsList[0].returnValue,
 
-            maxRss: mean(resultsList.map(x => x.maxRss)),
+            maxRss: resultsList.map(x => x.maxRss).reduce((a, b) => Math.max(a, b), 0),
             executionDuration: mean(resultsList.map(x => x.executionDuration)),
             snapshots: resultsList[0].snapshots,
-            stdDev: stdDev(resultsList.map(x => x.maxRss)),
+            rssStdDev: standardDeviation(resultsList.map(x => x.maxRss)),
+            durationrssStdDev: standardDeviation(resultsList.map(x => x.executionDuration)),
             outliers
         }
         

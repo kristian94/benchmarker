@@ -36,7 +36,7 @@ export const mode = (arr: number[]) => Number(
     .sort((a: any, b: any) => a[1] - b[1])
     .pop()?.[0]);
 
-export const stdDev = (arr: number[]) => {
+export const standardDeviation = (arr: number[]) => {
     const m = mean(arr)
 
     return Math.sqrt(mean(arr.map(x => (x - m) ** 2)));

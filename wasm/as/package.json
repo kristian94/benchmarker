@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npm run build-bs && npm run build-bs-uc && npm run build-ms1 && npm run build-ms2 && npm run build-module",
+    "build": "npm run build-bs && npm run build-bs-uc && npm run build-ms1 && npm run build-ms2 && npm run build-ms1-minimal && npm run build-ms1-stub && npm run build-ms2-minimal && npm run build-ms2-stub && npm run build-ms2-optimized",
     "build-bs": "asc bubble_sort.ts -b bubble_sort.wasm -O3",
     "build-bs-uc": "asc bubble_sort_unchecked.ts -b bubble_sort_unchecked.wasm -O3",
     "build-ms1": "asc merge_sort_v1.ts -b merge_sort_v1.wasm -O3",
@@ -15,15 +15,16 @@
     "build-ms2-stub": "asc merge_sort_v2.ts -b merge_sort_v2_stub.wasm -O3 --runtime=stub",
     "build-ms2-optimized": "asc merge_sort_v2_optimized.ts -b merge_sort_v2_optimized.wasm -O3",
     "build-module": "asc module.ts -b module.wasm -O3",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "print_asc_v": "asc -v"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@assemblyscript/loader": "0.18.11"
+    "@assemblyscript/loader": "0.18.31"
   },
   "devDependencies": {
-    "assemblyscript": "0.18.11"
+    "assemblyscript": "0.18.31"
   }
 }

@@ -1,5 +1,5 @@
 const { workerData, parentPort } = require('worker_threads');
-const { getWasmExports } = require('./wasm-importer');
+const { load } = require('./abstract-loader');
 const { performance } = require('perf_hooks');
 import { whenMessage } from './utils'; 
 import { WorkerResult, WorkerData, WorkerMessageType, WorkerMessage } from './types'
@@ -8,12 +8,7 @@ const { wasmPath, exportName, inputs, instantiationOptions } = workerData as Wor
 const log = (...s) => console.log('WORKER |', ...s);
 
 (async () => {
-    const wModule = await getWasmExports(wasmPath, instantiationOptions);
-
-    const exports = wModule.exports;
-
-    // @ts-ignore
-    gc();
+    const exports = await load(wasmPath, instantiationOptions);
 
     log('awaiting first continue')
     await whenMessage(parentPort, WorkerMessageType.Continue);

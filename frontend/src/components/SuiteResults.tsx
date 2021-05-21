@@ -15,7 +15,7 @@ interface ResultProps {
     inputs: any[],
     executionDuration: number,
     peakRSS: number
-    stdDev: number
+    rssStdDev: number
     outliers: number
 }
 
@@ -50,7 +50,7 @@ function SuiteResults() {
         inputs: x.inputs,
         executionDuration: x.executionDuration,
         peakRSS: max(x.snapshots.map(x => toMb(x.usage.rss))),
-        stdDev: toMb(x.stdDev),
+        rssStdDev: toMb(x.rssStdDev),
         outliers: x.outliers,
     })) 
 
@@ -67,7 +67,7 @@ function SuiteResults() {
                         [
                             ['Duration', `${x.executionDuration.toFixed(2)} ms`],
                             ['Peak RSS', `${x.peakRSS.toFixed(2)} MB`],
-                            ['Standard Deviation (RSS)', `${x.stdDev.toFixed(2)} MB`],
+                            ['Standard Deviation (RSS)', `${x.rssStdDev.toFixed(2)} MB`],
                             ['Outliers (of 25 iterations)', `${x.outliers}`],
                         ].map(x => 
                             <>
