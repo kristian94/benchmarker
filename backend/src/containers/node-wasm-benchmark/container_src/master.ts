@@ -10,9 +10,9 @@ const index = Number(indexString);
 const delayAmount = 10;
 
 const normalizeSnapshots = (snapshots: Snapshot[]) => {
-    const zero = snapshots[0].usage.rss;
+    const zero = snapshots[0].rss;
 
-    return snapshots.map(x => Object.assign(x, {usage: {rss: x.usage.rss - zero}}))
+    return snapshots.map(x => Object.assign(x, {usage: {rss: x.rss - zero}}))
 }
 
 interface MemoryIntervalModule {
@@ -36,7 +36,7 @@ const memoryInterval: MemoryIntervalModule = (() => {
             if(start === -1) start = now;
             
             snapshots.push({
-                usage: process.memoryUsage(),
+                rss: process.memoryUsage().rss,
                 elapsed: now - start
             })
         }

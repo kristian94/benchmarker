@@ -19,6 +19,7 @@ const log = (...s) => console.log('WORKER |', ...s);
     const returnValue = exports[exportName](...inputs);
 
     const after = performance.now();
+    
     const executionDuration = after - before;
 
     const workerResult: WorkerResult = {
