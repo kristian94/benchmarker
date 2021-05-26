@@ -33,7 +33,6 @@ const cmdAsync = (...c: String[]) => new Promise((resolve) => {
             log(`Starting run ${pos + 1}/${iterations}...`)
 
             await cmdAsync('node', 
-                '--experimental-wasm-threads', 
                 'master', 
                 ...args.map(x => x.toString()));
 

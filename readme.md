@@ -1,10 +1,9 @@
-# benchy - benchmarking JS/Wasm code with Docker
+# WBT - benchmarking Wasm code with Node.js Docker
 
-Benchy - a tool for dynamically creating and executing benchmark suites in containerized environments, tailored to specific performance needs.
+WBT - a tool for dynamically creating and executing benchmark suites in containerized environments, tailored to specific performance needs.
 
 - Utilizes Docker to provide isolated, automated and configurable runtime environments for compiling and benchmarking
 - Produces key metrics to provide useful insight into the benchmarked code
-- Fine-tuning of the benchmark runtimes available resources (ram, cpu) can be used to simulate different environments
 
 ## setup
 
