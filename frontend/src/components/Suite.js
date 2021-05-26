@@ -39,7 +39,7 @@ function Suite() {
                 )
             }
             <div className="mt-2">
-                <Button text="Submizzle" onClick={runTestSuite} disabled={!!running} />
+                <Button text="Submit" onClick={runTestSuite} disabled={!!running} />
             </div>
         </div>
     )
