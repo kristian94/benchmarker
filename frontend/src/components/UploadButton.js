@@ -8,8 +8,8 @@ function UploadButton() {
     function upload() {
         const FilesList = document.getElementById('wasm-upload-button').files
         const loader = document.getElementById('loader-selection').value || 'default';
-        const importMemory = document.getElementById('import-memory-selection').checked
-        const sharedMemory = document.getElementById('shared-memory-selection').checked
+        const importMemory = false
+        const sharedMemory = false
 
         if (FilesList.length < 1) return // stop (if user selects cancel in file selector)
         const fd = new FormData()
@@ -32,36 +32,23 @@ function UploadButton() {
                         <option value="assembly_script">AssemblyScript</option>
                     </select>
                 </div>
-                <div className="grid grid-rows-3 grid-flow-col gap-1 pt-1">
-                    <div>
-                        <label className="flex items-center space-x-3">
-                            <input type="checkbox" id="import-memory-selection" className="" />
-                            <span className="text-sm">Import memory</span>
+                <div className="">
+                    <div className="pt-3">
+                        <label
+                            htmlFor="wasm-upload-button"
+                            className="cursor-pointer font-bold text-white py-2 px-3 rounded bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50">
+                            Choose file...
                         </label>
-                    </div>
-                    <div className="">
-                        <label className="flex items-center space-x-3">
-                            <input type="checkbox" id="shared-memory-selection" className="" />
-                            <span className="text-sm">Shared memory</span>
-                        </label>
+                        <input
+                            style={{ display: "none" }}
+                            id="wasm-upload-button"
+                            type="file"
+                            accept=".wasm"
+                            onChange={e => { upload(); e.target.value = null; }}
+                        />
                     </div>
                 </div>
             </div>
-            <div className="pt-4">
-                <label
-                    htmlFor="wasm-upload-button"
-                    className="cursor-pointer font-bold text-white py-2 px-3 rounded bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50">
-                    Choose file...
-                </label>
-                <input
-                    style={{ display: "none" }}
-                    id="wasm-upload-button"
-                    type="file"
-                    accept=".wasm"
-                    onChange={e => { upload(); e.target.value = null; }}
-                />
-            </div>
-
         </div>
     )
 }
