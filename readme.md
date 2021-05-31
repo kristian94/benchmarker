@@ -15,11 +15,15 @@ requires:
 #### backend setup 
 
 $ cd backend
+
 $ npm i
+
 $ npm run api
 
 #### frontend setup 
 
 $ cd frontend
+
 $ npm i
+
 $ npm run start
