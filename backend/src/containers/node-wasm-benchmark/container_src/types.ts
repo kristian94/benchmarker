@@ -1,4 +1,4 @@
-import { WasmInstantiationOptions } from "./abstract-loader";
+import { LoaderEnum } from "./abstract-loader";
 
 export type ExportInput = any[]
 
@@ -29,7 +29,7 @@ export interface WorkerData {
     wasmPath: string,
     exportName: string,
     inputs: ExportInput,
-    instantiationOptions: WasmInstantiationOptions
+    loader: LoaderEnum
 }
 
 export enum WorkerMessageType {

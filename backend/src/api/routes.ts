@@ -9,22 +9,39 @@ import * as benchmarkRunner from '../containers/node-wasm-benchmark/runner';
 
 import { posix as path } from 'path';
 
-import { load, LoaderEnum, WasmInstantiationOptions } from '../containers/node-wasm-benchmark/container_src/abstract-loader'
+import { loaders, LoaderEnum } from '../containers/node-wasm-benchmark/container_src/abstract-loader'
+
 import { AggregatedResult, ExportInput } from "src/containers/node-wasm-benchmark/container_src/types";
 import { BenchmarkArgs } from "src/containers/node-wasm-benchmark/types";
+
+interface WasmExport {
+    name: string,
+    length: number
+}
+
+const createTempDirMW = () => async (req, res, next) => {
+    try {
+        const id = uuidv4();
+
+        const _path = await createTempDir(id);
+        const _srcPath = path.join(_path, 'src');
+
+        await fs.mkdir(_srcPath);
+
+        req['_tempPath'] = _path;
+        req['_srcPath'] = _srcPath;
+        req['_id'] = id;
+
+        next()
+    } catch (err) {
+        next(err)
+    }
+}
 
 const storage = multer.diskStorage({
     destination: async (req, file, cb) => {
         try {
-            const id = uuidv4();
-
-            const _path = await createTempDir(id);
-            const _srcPath = path.join(_path, 'src');
-
-            await fs.mkdir(_srcPath);
-
-            req['_tempPath'] = _path;
-            req['_id'] = id;
+            const {_srcPath} = req as any as {_srcPath: string};
 
             cb(null, _srcPath);
         } catch (err) {
@@ -42,44 +59,21 @@ router.get("/", (_, res) => {
     res.send("Hello")
 })
 
-interface WasmExport {
-    name: string,
-    length: number
-}
 
-router.post("/wasm-upload", upload.single("wasmfile"), async (req, res) => {
-    if (!req.file) {
+
+router.post("/wasm-upload", createTempDirMW(), upload.any(), async (req, res) => {
+    if (!req.files) {
         return res.sendStatus(400)
     }
-    console.log(req.file) // file meta
+    console.log(req.files) // file meta
 
-    const { loader } = req.body;
-    const importMemory = req.body.importMemory === 'true';
-    const sharedMemory = req.body.sharedMemory === 'true';
+    const { loader, entryFileIndex } = req.body;
 
-    if (req.file.mimetype !== "application/wasm") {
-        return res.status(400).send("non wasm file")
-    }
+    const loaderInstance = loaders[loader];
 
-    const pathToWasm = req.file.path;
-    if (!(await fileExists(pathToWasm))) {
-        return res.status(500)
-    }
+    const pathToWasm = req.files[entryFileIndex].path;
 
-    const instantiationOptions: WasmInstantiationOptions = {
-        importMemory,
-        loader
-    }
-
-    if (sharedMemory) {
-        instantiationOptions.memoryOptions = {
-            sharedMemory: true,
-            initial: 1,
-            maximum: 73142 // approx 4 GB
-        }
-    }
-
-    const exports = await load(pathToWasm, instantiationOptions)
+    const exports = await loaderInstance.getExports(pathToWasm);
 
     const wasmFuncs: WasmExport[] = []
     for (const key in exports) {
@@ -96,8 +90,7 @@ router.post("/wasm-upload", upload.single("wasmfile"), async (req, res) => {
     res.json({
         uuid: req['_id'],
         funcs: wasmFuncs,
-        targetFile: req.file.originalname,
-        instantiationOptions
+        targetFile: req.files[entryFileIndex].originalname
     })
 })
 
@@ -106,7 +99,7 @@ interface RunSuiteBody {
         exportName: string,
         inputs: ExportInput
     }[],
-    instantiationOptions: WasmInstantiationOptions,
+    loader: string,
     targetFile: string,
     id: string
 }
@@ -119,7 +112,7 @@ router.post('/run-suite', async (req, res) => {
         const BenchmarkArgs: BenchmarkArgs = {
             targetFile: body.targetFile,
             tempDir: getTempDirPath(body.id),
-            instantiationOptions: body.instantiationOptions,
+            loader: body.loader as LoaderEnum,
             exportArgs: body.exports.map(x => Object.assign({}, x, {
                 interval: 100 // todo infer
             })),
@@ -132,7 +125,9 @@ router.post('/run-suite', async (req, res) => {
         }
 
         const json = {
-            instantiationOptions: body.instantiationOptions,
+            instantiationOptions: {
+                loader: body.loader
+            },
             results
         }
 
@@ -149,7 +144,7 @@ interface Scenario {
     name: string,
     folder: string,
     file: string,
-    instantiationOptions: WasmInstantiationOptions
+    loader: string
 }
 
 const scenarios: Scenario[] = [
@@ -158,70 +153,49 @@ const scenarios: Scenario[] = [
         name: "Bubble Sort Optimised",
         folder: "bubble_sort_unchecked",
         file: "bubble_sort_unchecked.wasm",
-        instantiationOptions: {
-            importMemory: false,
-            loader: LoaderEnum.AssemblyScript
-        }
+        loader: LoaderEnum.AssemblyScript
     },
     {
         id: 2,
         name: "Bubble Sort",
         folder: "bubble_sort",
         file: "bubble_sort.wasm",
-        instantiationOptions: {
-            importMemory: false,
-            loader: LoaderEnum.AssemblyScript
-        }
+        loader: LoaderEnum.AssemblyScript
     },
     {
         id: 3,
         name: "Merge Sort v1",
         folder: "merge_sort_v1",
         file: "merge_sort_v1.wasm",
-        instantiationOptions: {
-            importMemory: false,
-            loader: LoaderEnum.AssemblyScript
-        }
+        loader: LoaderEnum.AssemblyScript
     },
     {
         id: 4,
         name: "Merge Sort v2",
         folder: "merge_sort_v2",
         file: "merge_sort_v2.wasm",
-        instantiationOptions: {
-            importMemory: false,
-            loader: LoaderEnum.AssemblyScript
-        }
+        loader: LoaderEnum.AssemblyScript
     },
     {
         id: 5,
         name: "Merge Sort v2 minimal",
         folder: "merge_sort_v2_minimal",
         file: "merge_sort_v2_minimal.wasm",
-        instantiationOptions: {
-            importMemory: false,
-            loader: LoaderEnum.AssemblyScript
-        }
+        loader: LoaderEnum.AssemblyScript
     },
     {
         id: 6,
         name: "Merge Sort v2 stub",
         folder: "merge_sort_v2_stub",
         file: "merge_sort_v2_stub.wasm",
-        instantiationOptions: {
-            importMemory: false,
-            loader: LoaderEnum.AssemblyScript
-        }
+        loader: LoaderEnum.AssemblyScript
     },
     {
         id: 7,
         name: "Merge Sort v2 optimized",
         folder: "merge_sort_v2_optimized",
         file: "merge_sort_v2_optimized.wasm",
-        instantiationOptions: {
-            importMemory: false,
-            loader: LoaderEnum.AssemblyScript
-        }
+        loader: LoaderEnum.AssemblyScript
     }
 ]
 
@@ -238,7 +212,9 @@ router.get('/scenarios/:id', async (req, res) => {
     const scenario = scenarios.find(s => s.id === id)
     if (!scenario) return res.sendStatus(500)
 
-    const exports = await load(getTempDirPath(`${scenario.folder}/src/${scenario.file}`), scenario.instantiationOptions)
+    const loader = loaders[scenario.loader];
+
+    const exports = await loader.getExports(getTempDirPath(`${scenario.folder}/src/${scenario.file}`));
 
     const wasmFuncs: WasmExport[] = []
     for (const key in exports) {
@@ -256,7 +232,7 @@ router.get('/scenarios/:id', async (req, res) => {
         uuid: id,
         funcs: wasmFuncs,
         targetFile: scenario.file,
-        instantiationOptions: scenario.instantiationOptions
+        loader: scenario.loader
     })
 })
 
@@ -277,7 +253,7 @@ router.post('/run-scenario', async (req, res) => {
         const BenchmarkArgs: BenchmarkArgs = {
             targetFile: scenario.file,
             tempDir: getTempDirPath(`${scenario.folder}`),
-            instantiationOptions: scenario.instantiationOptions,
+            loader: scenario.loader as LoaderEnum,
             exportArgs: [{
                 exportName: body.func,
                 inputs: [body.input],
@@ -289,7 +265,9 @@ router.post('/run-scenario', async (req, res) => {
         if (results === undefined)  return res.status(500).json({"error": "benchmark error"})
 
         const json = {
-            instantiationOptions: scenario.instantiationOptions,
+            instantiationOptions: {
+                loader: scenario.loader
+            },
             results
         }
         console.log(json)

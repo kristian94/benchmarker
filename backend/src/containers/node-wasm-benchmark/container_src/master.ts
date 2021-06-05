@@ -65,7 +65,7 @@ const memoryInterval: MemoryIntervalModule = (() => {
 
 ;(async () => {
     const args: BenchmarkArgs = await fs.readFile('args.json', {encoding: 'utf-8'}).then(JSON.parse);
-    const instantiationOptions = args.instantiationOptions;
+    const loader = args.loader;
     const exportArgs = args.exportArgs[index];
     const {inputs, exportName, interval } = exportArgs;
 
@@ -73,7 +73,7 @@ const memoryInterval: MemoryIntervalModule = (() => {
         wasmPath,
         exportName,
         inputs,
-        instantiationOptions
+        loader
     }
 
     const worker = new Worker('./worker.js', {

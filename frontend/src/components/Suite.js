@@ -8,7 +8,9 @@ function Suite() {
 
     const wasmFileId = useSelector(state => state.wasmMeta.wasmFileId)
     const targetFile = useSelector(state => state.wasmMeta.targetFile)
-    const instantiationOptions = useSelector(state => state.wasmMeta.instantiationOptions)
+    // const instantiationOptions = useSelector(state => state.wasmMeta.instantiationOptions)
+    const loader = useSelector(state => state.loaderConfig.selected)
+
     const customSuite = useSelector(state => state.wasmMeta.customSuite)
     const running = useSelector(state => state.suiteResults.running)
 
@@ -17,7 +19,7 @@ function Suite() {
             id: wasmFileId,
             targetFile,
             exports: customSuite,
-            instantiationOptions
+            loader
         }
 
         dispatch(runSuite(body))

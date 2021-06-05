@@ -1,5 +1,5 @@
 import { ExportInput } from "./container_src/types";
-import { WasmInstantiationOptions } from "./container_src/abstract-loader";
+import { LoaderEnum } from "./container_src/abstract-loader";
 
 export interface BenchmarkExportArgs {
     exportName: string,
@@ -11,5 +11,5 @@ export interface BenchmarkArgs {
     targetFile: string,
     tempDir: string,
     exportArgs: BenchmarkExportArgs[],
-    instantiationOptions: WasmInstantiationOptions
+    loader: LoaderEnum
 }
