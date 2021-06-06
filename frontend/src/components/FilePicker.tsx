@@ -15,7 +15,7 @@ export default function UploadButton(props: FilePickerProps) {
         <div className="pt-3">
             <label
                 htmlFor={id}
-                className="cursor-pointer font-bold text-white py-2 px-3 rounded bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50">
+                className="block cursor-pointer font-bold text-white py-2 px-3 rounded bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50 max-w-xs w-full">
                 Choose file ({props.extension})
             </label>
             <input

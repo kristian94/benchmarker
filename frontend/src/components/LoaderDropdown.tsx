@@ -20,7 +20,7 @@ export default function LoaderDropdown(){
     return (
         <div className="">
             <label className="block mb-1" htmlFor="loader-selection">WebAssembly Loader</label>
-            <select onChange={OnChangeHandler} defaultValue={selected} className="text-black rounded py-1 px-2 text-sm w-9/12" id="loader-selection">
+            <select onChange={OnChangeHandler} defaultValue={selected} className="text-black rounded py-1 px-2 text-sm max-w-xs w-full" id="loader-selection">
                 {loaderConfigs.map(x => 
                     <option key={x.id} value={x.id}>{x.name}</option>
                 )}

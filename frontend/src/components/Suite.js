@@ -30,19 +30,19 @@ function Suite() {
     }
 
     return (
-        <div>
-            <div className="text-xl">Suite</div>
-            {
-                customSuite.map((x, i) => 
-                    <div key={i}>
-                        <span>{ x.exportName }</span>
-                        <span>({x.inputs.join(',')})</span>
-                    </div>
-                )
-            }
-            <div className="mt-2">
-                <Button text="Submit" onClick={runTestSuite} disabled={!!running} />
+        <div className="grid grid-cols-1 gap-8">
+            <div className="text-xl">3. Confirm</div>
+            <div className="grid grid-cols-1 gap-2">
+                {
+                    customSuite.map((x, i) => 
+                        <div key={i}>
+                            <span>{ x.exportName }</span>
+                            <span className="font-mono">({x.inputs.join(',')})</span>
+                        </div>
+                    )
+                }
             </div>
+            <Button text="Run suite" onClick={runTestSuite} disabled={!!running} />
         </div>
     )
 }

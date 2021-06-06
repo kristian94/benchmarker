@@ -44,38 +44,29 @@ function UploadButton() {
     const disableUpload = selected.files.length > fileSelectState.filesSelected.length;
 
     return (
-        <div>
-            <p className="mb-5 text-gray-300">Upload WebAssembly module for benchmarking</p>
-            <div className="grid grid-cols-2 gap-4">
-                <LoaderDropdown/>
+        <div className="grid grid-cols-1 gap-8">
+            <p className="text-xl">1. Upload module</p>
+            <LoaderDropdown/>
+            <div className="grid grid-cols-1 gap-2">
+                {selected.files.map((x, i) => {
+                    const file = fileSelectState.filesSelected[i];
+                    
+                    const selectedFileEl = file 
+                        ? <p className="mt-2">{file.name}</p>
+                        : <p className="mt-2 italic">{x.name}</p>
 
-                <div className="">
-                    <div className="pt-3 grid grid-cols-1 gap-4">
-                        {selected.files.map((x, i) => {
-                            const file = fileSelectState.filesSelected[i];
-                            
-
-                            const selectedFileEl = file 
-                                ? <p className="mt-2">{file.name}</p>
-                                : <p className="mt-2 italic">{x.name}</p>
-
-                            return <div>
-                                
-                                <FilePicker {...{
-                                    changeHandler: changeHandler(i), 
-                                    extension: x.extension,
-                                    key: i
-                                }}/>
-                                {selectedFileEl}
-                            </div>
-                        })}
+                    return <div>
+                        
+                        <FilePicker {...{
+                            changeHandler: changeHandler(i), 
+                            extension: x.extension,
+                            key: i
+                        }}/>
+                        {selectedFileEl}
                     </div>
-                </div>
-                <div className="">
-                    <Button text="Submit" onClick={upload} disabled={disableUpload}/>
-
-                </div>
+                })}
             </div>
+            <Button text="Submit" onClick={upload} disabled={disableUpload}/>
         </div>
     )
 }

@@ -11,6 +11,7 @@ function Button({ px = 3, py = 2, onClick, text, rounded = "rounded-2xl", classe
             py-${py}
             px-${px}
             ${rounded} 
+            max-w-xs
             bg-purple-600 
             hover:bg-purple-700 
             focus:outline-none 

@@ -27,16 +27,15 @@ function UploadResult() {
         return (
             <div>
                 { wasmFileIdEl }
-                <p className="text-xl">Module doesn not have any exported functions</p>
+                <p className="text-xl">Module does not not have any exported functions</p>
             </div>
         )
     }
 
     return (
-        <div>
-            { wasmFileIdEl }
-            <p className="text-xl">Exported functions:</p>
-            <div className="px-3">
+        <div className="grid grid-cols-1 gap-8">
+            <p className="text-xl">2. Select inputs</p>
+            <div className="grid grid-cols-1 gap-2">
                 {
                     wasmFuncs.map((f, i) =>
                         <div key={i} data-export-name={f.name}>
